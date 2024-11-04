@@ -1,21 +1,23 @@
 import axios from "axios";
+import { EXPO_PUBLIC_BASE_URL } from "@env";
 
-const apiUrl =
-  "https://api-women-security-app-544496114867.southamerica-west1.run.app/api/";
+const API_URL = EXPO_PUBLIC_BASE_URL;
+const API_URL_STRING = API_URL?.replace(/^['"]|['"]$/g, " ");
 
 // Login
-const loginUser = async ({ correo, contrasena }: any) => {
+const IniciarSesion = async ({ correo, contrasena }: any) => {
   try {
-    const response = await axios.post(`${apiUrl}login`, {
+    const response = await axios.post(`${API_URL_STRING}login`, {
       correo,
       password: contrasena,
     });
+
     return { success: true, data: response.data };
   } catch (error: any) {
     let errorMessage = "Ocurrió un error al iniciar sesión";
 
     console.log(error.response.data);
-    
+
     if (error.response) {
       errorMessage = error.response.data?.message || errorMessage;
     } else if (error.request) {
@@ -30,7 +32,7 @@ const loginUser = async ({ correo, contrasena }: any) => {
 };
 
 // Registro usuario
-const registerUser = async ({
+const RegistrarUsuario = async ({
   nombres,
   apellidos,
   fecha_nacimiento,
@@ -41,7 +43,7 @@ const registerUser = async ({
   password,
 }: any) => {
   try {
-    const response = await axios.post(`${apiUrl}register`, {
+    const response = await axios.post(`${API_URL}register`, {
       nombre: "Gabriel Alonso",
       apellido: "Olivares Opazo",
       correo: "gaboolivaresopazo@gmail.com",
@@ -71,15 +73,4 @@ const registerUser = async ({
   }
 };
 
-// Obtener Comunas
-const obtenerComunas = async (): Promise<any> => {
-  try {
-    const response = await axios.get(`${apiUrl}comunas`);
-    return response.data;
-  } catch (error) {
-    console.error("Error al obtener comunas:", error);
-    throw error;
-  }
-};
-
-export { loginUser, registerUser, obtenerComunas };
+export { IniciarSesion, RegistrarUsuario };

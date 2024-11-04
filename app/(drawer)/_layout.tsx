@@ -15,8 +15,6 @@ export const CustomDrawerComponent = (props: any) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state: any) => state.auth.user);
-  console.log(user);
-  
 
   return (
     <View style={{ flex: 1 }}>
@@ -25,7 +23,7 @@ export const CustomDrawerComponent = (props: any) => {
           <View className="flex flex-col justify-center items-center">
             <View className="relative">
               <View className="absolute -top-4 -right-10">
-                <Ionicons name="chatbox-ellipses" size={32} color={"black"} />
+                <Ionicons name="chatbox-ellipses" size={32} color="#ff80b5" />
               </View>
               <View className="h-24 w-24 mb-4 overflow-hidden border-2 border-black rounded-full flex justify-center items-center">
                 <Image
@@ -57,7 +55,7 @@ export const CustomDrawerComponent = (props: any) => {
             },
           ]}
           style={{
-            backgroundColor: pathname == "/home" ? "#333" : "transparent",
+            backgroundColor: pathname == "/home" ? "#ff80b5" : "transparent",
           }}
           onPress={() => {
             router.push("/(drawer)/(tabs)/home");
@@ -79,10 +77,32 @@ export const CustomDrawerComponent = (props: any) => {
           ]}
           style={{
             backgroundColor:
-              pathname == "/registrar-clave" ? "#333" : "transparent",
+              pathname == "/registrar-clave" ? "#ff80b5" : "transparent",
           }}
           onPress={() => {
             router.push("/(drawer)/(modulos)/registrar-clave");
+          }}
+        />
+        <DrawerItem
+          label={"Mis claves"}
+          icon={({ color, size }) => (
+            <Ionicons
+              name="list"
+              size={24}
+              color={pathname == "/mis-claves" ? "#fff" : "#000"}
+            />
+          )}
+          labelStyle={[
+            {
+              color: pathname == "/mis-claves" ? "#fff" : "#000",
+            },
+          ]}
+          style={{
+            backgroundColor:
+              pathname == "/mis-claves" ? "#ff80b5" : "transparent",
+          }}
+          onPress={() => {
+            router.push("/(drawer)/(modulos)/mis-claves");
           }}
         />
         <DrawerItem
@@ -101,7 +121,7 @@ export const CustomDrawerComponent = (props: any) => {
           ]}
           style={{
             backgroundColor:
-              pathname == "/mis-alertas" ? "#333" : "transparent",
+              pathname == "/mis-alertas" ? "#ff80b5" : "transparent",
           }}
           onPress={() => {
             router.push("/(drawer)/(modulos)/mis-alertas");
@@ -122,7 +142,8 @@ export const CustomDrawerComponent = (props: any) => {
             },
           ]}
           style={{
-            backgroundColor: pathname == "/reportes" ? "#333" : "transparent",
+            backgroundColor:
+              pathname == "/reportes" ? "#ff80b5" : "transparent",
           }}
           onPress={() => {
             router.push("/(drawer)/(modulos)/reportes");
@@ -143,7 +164,8 @@ export const CustomDrawerComponent = (props: any) => {
             },
           ]}
           style={{
-            backgroundColor: pathname == "/noticias" ? "#333" : "transparent",
+            backgroundColor:
+              pathname == "/noticias" ? "#ff80b5" : "transparent",
           }}
           onPress={() => {
             router.push("/(drawer)/(modulos)/noticias");
@@ -164,7 +186,7 @@ export const CustomDrawerComponent = (props: any) => {
             },
           ]}
           style={{
-            backgroundColor: pathname == "/ayuda" ? "#333" : "transparent",
+            backgroundColor: pathname == "/ayuda" ? "#ff80b5" : "transparent",
           }}
           onPress={() => {
             router.push("/(drawer)/(modulos)/ayuda");
@@ -190,7 +212,7 @@ export const CustomDrawerComponent = (props: any) => {
           ]}
           style={{
             backgroundColor:
-              pathname == "/configuracion" ? "#333" : "transparent",
+              pathname == "/configuracion" ? "#ff80b5" : "transparent",
           }}
           onPress={() => {
             router.push("/(drawer)/(modulos)/configuracion");
@@ -217,7 +239,7 @@ export default function Layout() {
     <Drawer
       screenOptions={{
         headerStyle: {
-          backgroundColor: "#b17940",
+          backgroundColor: "#ff80b5",
         },
         headerTintColor: "#fff",
         headerTitleStyle: {

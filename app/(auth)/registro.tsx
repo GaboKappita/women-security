@@ -19,7 +19,7 @@ import Swiper from "react-native-swiper";
 import * as Yup from "yup";
 import { useRouter } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
-import { registerUser } from "../../services/api/api";
+import { registerUser } from "../../services/api/auth";
 import useFetchComunas from "../../hooks/useFetchComunas";
 
 const RegisterSchema = Yup.object().shape({

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { obtenerComunas } from "../services/api/api";
+import { obtenerComunas } from "../services/api/auth";
 
 const useFetchComunas = () => {
   const [comunas, setComunas] = useState<any[]>([]);

@@ -1,58 +1,35 @@
-import { createSlice } from "@reduxjs/toolkit";
-import * as SecureStore from "expo-secure-store";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+interface UserState {
+  isAuthenticated: boolean;
+  persona: any | null;
+  perfil: any | null;
+}
 
-// Function to load user from SecureStore
-const loadUserFromStorage = async () => {
-  try {
-    const userInfo = await SecureStore.getItemAsync("userInfo");
-    return userInfo ? JSON.parse(userInfo) : null;
-  } catch (error) {
-    console.error("Failed to load user info", error);
-    return null;
-  }
-};
-
-const initialState = {
-  user: null,
-  loading: true,
+const initialState: UserState = {
+  isAuthenticated: false,
+  persona: null,
+  perfil: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loginAction: (state, action) => {
-      console.log("entro de alguna forma?");
-      
-      state.user = action.payload;
-      state.loading = false;
-      // Storing user info securely
-      SecureStore.setItemAsync("userInfo", JSON.stringify(action.payload));
+    loginAction: (
+      state,
+      action: PayloadAction<{ perfil: any; persona: any }>
+    ) => {
+      state.perfil = action.payload.perfil;
+      state.persona = action.payload.persona;
+      state.isAuthenticated = true;
     },
     logoutAction: (state) => {
-      state.user = null;
-      state.loading = false;
-      // Removing user info securely
-      SecureStore.deleteItemAsync("userInfo");
-    },
-    setUser: (state, action) => {
-      state.user = action.payload;
-      state.loading = false;
-    },
-    setLoading: (state, action) => {
-      state.loading = action.payload;
+      state.perfil = null;
+      state.persona = null;
+      state.isAuthenticated = false;
     },
   },
 });
 
-export const { loginAction, logoutAction, setUser, setLoading } = authSlice.actions;
-export default authSlice.reducer;
-
-export const loadUser = () => async (dispatch: any) => {
-  const user = await loadUserFromStorage();
-  if (user) {
-    dispatch(setUser(user));
-  } else {
-    dispatch(setLoading(false));
-  }
-};
+export const { loginAction, logoutAction } = authSlice.actions; // Exporta las acciones
+export default authSlice.reducer; // Exporta el reducer

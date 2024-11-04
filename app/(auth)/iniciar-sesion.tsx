@@ -1,7 +1,6 @@
-import { useEffect } from "react";
-import { router, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -19,7 +18,8 @@ import ImagenBackground from "../../components/aplicacion/ImagenBackground";
 import * as Yup from "yup";
 import { useMutation } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../services/api/api";
+import { IniciarSesion } from "../../services/api/auth";
+import { loginAction } from "../(redux)/authSlice";
 import { Formik } from "formik";
 
 const LoginSchema = Yup.object().shape({
@@ -30,21 +30,35 @@ const LoginSchema = Yup.object().shape({
 });
 
 export default function IniciarSesionScreen() {
-  const router = useRouter();
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
-  //dispatch
   const dispatch = useDispatch();
-  const mutation = useMutation({
-    mutationFn: loginUser,
-    mutationKey: ["login"],
-  });
   const user = useSelector((state: any) => state.auth.user);
+  const [correo, setCorreo] = useState("gaboolivaresopazo@gmail.com");
+  const [contrasena, setContrasena] = useState("Hola123$&");
+
   useEffect(() => {
     if (user) {
       router.push("/(drawer)/(tabs)/home");
     }
   }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const response = await IniciarSesion({ correo, contrasena });
+      console.log(response.data.perfil);
+      console.log(response.data.persona);
+      dispatch(
+        loginAction({
+          perfil: response.data.perfil,
+          persona: response.data.persona,
+        })
+      );
+      router.push("/(drawer)/(tabs)/home");
+    } catch (error) {
+      console.error("Error al iniciar sesión: ", error);
+    }
+  };
+
+  const mutation = { status: "success" };
 
   return (
     <ImagenBackground>
@@ -62,29 +76,7 @@ export default function IniciarSesionScreen() {
                 contrasena: "Hola123$&",
               }}
               validationSchema={LoginSchema}
-              onSubmit={async (values) => {
-                try {
-                  const result = await mutation.mutateAsync(values);
-                  if (!result.success) {
-                    Alert.alert("Credenciales no válidas", result.message, [
-                      { text: "OK" },
-                    ]);
-                    setMessage(result.message || "");
-                    setMessageType("error");
-                    return;
-                  }
-                  setMessage("Inicio de sesión exitoso");
-                  setMessageType("exitoso");
-                  router.push("/(drawer)/(tabs)/home");
-                } catch (err) {
-                  console.error("Error during mutation:", err);
-                  // Puedes manejar un error global si algo sale mal
-                  setMessage(
-                    "Ocurrió un error inesperado. Inténtalo de nuevo."
-                  );
-                  setMessageType("error");
-                }
-              }}
+              onSubmit={handleSubmit}
             >
               {({
                 handleChange,
@@ -98,7 +90,7 @@ export default function IniciarSesionScreen() {
                   <TextInput
                     className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
                     placeholder="Correo electrónico"
-                    onChangeText={handleChange("correo")}
+                    onChangeText={setCorreo}
                     onBlur={handleBlur("correo")}
                     value={values.correo}
                     keyboardType="email-address"
@@ -110,7 +102,7 @@ export default function IniciarSesionScreen() {
                   <TextInput
                     className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
                     placeholder="Contraseña"
-                    onChangeText={handleChange("contrasena")}
+                    onChangeText={setContrasena}
                     onBlur={handleBlur("contrasena")}
                     value={values.contrasena}
                     secureTextEntry
@@ -123,7 +115,7 @@ export default function IniciarSesionScreen() {
 
                   <TouchableOpacity
                     activeOpacity={0.8}
-                    className={`h-12 bg-[#b17940] rounded-md justify-center items-center my-4 ${
+                    className={`h-12 bg-[#ff80b5] rounded-md justify-center items-center my-4 ${
                       mutation.status === "pending" ? "opacity-50" : ""
                     }`}
                     onPress={() => {

@@ -4,16 +4,19 @@ import { Provider } from "react-redux";
 import store from "./(redux)/store";
 import AppWrapper from "./(redux)/app-wrapper";
 import { Stack } from "expo-router";
+import { LocationProvider } from "../contexts/LocationContext";
 
 export default function RootLayout() {
   return (
     <>
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
-          <Stack>
-            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          </Stack>
+          <LocationProvider>
+            <Stack>
+              <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            </Stack>
+          </LocationProvider>
         </QueryClientProvider>
       </Provider>
     </>
