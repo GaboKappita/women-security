@@ -1,0 +1,29 @@
+npx expo install expo-router react-native-safe-area-context react-native-screens expo-linking expo-constants expo-status-bar
+npm install nativewind
+npm install --save-dev tailwindcss@3.3.2
+// npx tailwindcss init
+npm install --save-dev react-native-dotenv
+npx expo install react-native-maps
+npx expo install @react-navigation/drawer
+npx expo install expo-location
+npx expo install expo-secure-store
+npm install @tanstack/react-query
+npx expo install react-native-gesture-handler react-native-reanimated @react-native-community/masked-view
+npx expo install react-native-chart-kit react-native-svg
+npx expo install react-native-swiper
+npx expo install expo-blur
+npm install react-redux
+npm install @reduxjs/toolkit
+npm install yup formik react-native-formik
+npm install axios
+
+
+
+
+
+
+
+
+
+
+
