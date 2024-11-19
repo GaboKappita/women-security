@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  useEliminarUsuarioGrupoMutation,
   useInvitarUsuarioMutation,
   useListarGrupoCompletoQuery,
 } from "../../services/api";
@@ -12,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import OpcionesModal from "./ModalOpciones";
 
 const GrupoModal = ({
   grupoId,
@@ -26,66 +28,102 @@ const GrupoModal = ({
   setModalVisibleGrupo: (visible: boolean) => void;
   id_usuario: string;
 }) => {
-  const [modalVisiblePersona, setModalVisiblePersona] = useState(false);
-  const [triggerQuery, setTriggerQuery] = useState(false);
+  const [modalVisibleAgregarPersona, setModalVisibleAgregarPersona] =
+    useState(false);
+  const [modalVisibleOpciones, setModalVisibleOpciones] = useState(false);
+  const [datosGrupo, setDatosGrupo] = useState<any>({
+    grupo: {},
+    miembros: [],
+  });
   const [celularPersona, setCelularPersona] = useState("");
+  const [integrante, setIntegrante] = useState<any>();
+  const [grupoDataUpdated, setGrupoDataUpdated] = useState(false);
+  const [isFetchingData, setIsFetchingData] = useState(false);
 
   const {
-    data: dataGrupoCompleto,
+    data: dataGrupoCompleto = {
+      grupo: {},
+      miembros: [],
+    },
     error: errorGrupoCompleto,
     isLoading: isLoadingGrupoCompleto,
     refetch: refetchGrupoCompleto,
-  } = useListarGrupoCompletoQuery(
-    { id_grupo: grupoId },
-    { skip: !triggerQuery }
-  );
-
-  // Reinicia el trigger cada vez que se abra el modal
-  useEffect(() => {
-    if (modalVisibleGrupo) {
-      setTriggerQuery(true);
-    }
-  }, [modalVisibleGrupo]);
-
-  // Maneja el cierre del modal y reinicia los datos
-  const handleCloseModal = () => {
-    setGrupoId("");
-    setTriggerQuery(false);
-    setModalVisibleGrupo(false);
-  };
+  } = useListarGrupoCompletoQuery({ id_grupo: grupoId });
 
   useEffect(() => {
-    if (!modalVisibleGrupo) {
-      setTriggerQuery(false);
-    }
-  }, [modalVisibleGrupo]);
+    const fetchGrupoData = async () => {
+      if (modalVisibleGrupo) {
+        setIsFetchingData(true); // Activa la bandera de carga
+        setDatosGrupo({
+          grupo: {},
+          miembros: [],
+        }); // Limpia los datos anteriores
 
-  const handleAgregarPersona = () => {
-    handleAgregarPersonaGrupo(celularPersona);
-    setCelularPersona("");
-    setModalVisiblePersona(false);
-    setModalVisibleGrupo(false);
-  };
+        try {
+          const result = await refetchGrupoCompleto(); // Ejecuta refetch y obtiene la nueva data
+
+          if (result?.data) {
+            setDatosGrupo(result.data); // Usa la data fresca obtenida
+          }
+        } catch (error) {
+          console.error("Error al cargar datos del grupo:", error);
+        } finally {
+          setIsFetchingData(false); // Desactiva la bandera de carga
+        }
+      } else {
+        setDatosGrupo({
+          grupo: {},
+          miembros: [],
+        }); // Limpia los datos al cerrar el modal
+      }
+    };
+
+    fetchGrupoData();
+  }, [modalVisibleGrupo, grupoDataUpdated, refetchGrupoCompleto]);
 
   const [
     invitarPersona,
     { isLoading: isLoadingInvitado, error: errorInvitado, data: dataInvitado },
   ] = useInvitarUsuarioMutation();
 
-  const handleAgregarPersonaGrupo = async (celular: string) => {
-    const data = {
+  const handleAgregarPersona = () => {
+    setModalVisibleAgregarPersona(false);
+    setModalVisibleGrupo(false);
+    invitarPersona({
       id_grupo: grupoId,
-      celular: celular,
+      celular: celularPersona,
       id_usuario_creador: id_usuario,
-    };
-
-    invitarPersona(data)
+    })
       .unwrap()
       .then((response: any) => {
         console.log(response);
       })
       .catch((error: any) => {
         console.error("Error al enviar el Alerta:", error);
+      });
+    setCelularPersona("");
+  };
+
+  const [
+    eliminarGrupo,
+    {
+      isLoading: isLoadingEliminarClave,
+      error: errorEliminarClave,
+      data: dataEliminarClave,
+    },
+  ] = useEliminarUsuarioGrupoMutation();
+
+  const handleEliminarPersona = () => {
+    eliminarGrupo({
+      id_grupo: grupoId,
+      id_usuario: integrante.id_usuario,
+    })
+      .unwrap()
+      .then((response) => {
+        setGrupoDataUpdated((prev) => !prev);
+      })
+      .catch((error) => {
+        console.error("Error al eliminar el usuario del grupo:", error);
       });
   };
 
@@ -97,53 +135,120 @@ const GrupoModal = ({
         visible={modalVisibleGrupo}
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="w-11/12 p-5 bg-[#F5F5F5] rounded-xl shadow-lg">
-            {/* Muestra el estado de carga o los detalles */}
-            {isLoadingGrupoCompleto ? (
-              <Text className="text-center w-full">Cargando detalles...</Text>
+          <View className="w-11/12 min-h-[150px] max-h-[550px] p-5 bg-[#F5F5F5] rounded-xl shadow-lg">
+            {isLoadingGrupoCompleto || isFetchingData ? (
+              <Text className="text-center text-base my-4 w-full">
+                Cargando detalles...
+              </Text>
             ) : errorGrupoCompleto ? (
               <Text>Error al cargar detalles</Text>
             ) : (
               <>
                 <Text className="text-lg font-bold text-center">
-                  {dataGrupoCompleto?.grupo?.nombre_grupo}
+                  {datosGrupo?.grupo?.nombre_grupo}
                 </Text>
                 <Text className="text-base text-center mb-4">
-                  {dataGrupoCompleto?.grupo?.descripcion}
+                  {datosGrupo?.grupo?.descripcion}
                 </Text>
+
+                <ScrollView>
+                  {/* Mostrar el creador del grupo */}
+                  {datosGrupo?.grupo && (
+                    <>
+                      <Text className="p-2 mx-2 text-lg font-bold">
+                        Creador del grupo:
+                      </Text>
+                      <View className="p-2 mx-2 mb-2 bg-white rounded shadow shadow-black">
+                        <Text className="text-lg">
+                          {
+                            datosGrupo.miembros.find(
+                              (m: any) =>
+                                m.id_usuario === datosGrupo.grupo.id_usuario
+                            )?.persona.nombre
+                          }{" "}
+                          {
+                            datosGrupo.miembros.find(
+                              (m: any) =>
+                                m.id_usuario === datosGrupo.grupo.id_usuario
+                            )?.persona.apellido
+                          }
+                        </Text>
+                        <Text className="text-base">
+                          {
+                            datosGrupo.miembros.find(
+                              (m: any) =>
+                                m.id_usuario === datosGrupo.grupo.id_usuario
+                            )?.persona.numero_telefono
+                          }
+                        </Text>
+                      </View>
+                    </>
+                  )}
+
+                  {/* Mostrar los miembros excluyendo al creador */}
+                  <Text className="p-2 mx-2 text-lg font-bold">
+                    Miembros del grupo:
+                  </Text>
+                  {datosGrupo?.miembros?.filter(
+                    (m: any) => m.id_usuario !== datosGrupo.grupo.id_usuario
+                  ).length > 0 ? (
+                    datosGrupo.miembros
+                      .filter(
+                        (m: any) => m.id_usuario !== datosGrupo.grupo.id_usuario
+                      )
+                      .map((integrante: any, index: number) => (
+                        <TouchableOpacity
+                          key={index}
+                          activeOpacity={0.75}
+                          className="p-2 mx-2 mb-2 bg-white rounded shadow shadow-black"
+                          onPress={() => {
+                            if (id_usuario === datosGrupo?.grupo?.id_usuario) {
+                              setIntegrante({});
+                              setIntegrante(integrante);
+                              setModalVisibleOpciones(true);
+                            } else {
+                              console.log(
+                                "No tienes permisos para realizar esta acción."
+                              );
+                            }
+                          }}
+                        >
+                          <Text className="text-lg">
+                            {integrante.persona.nombre}{" "}
+                            {integrante.persona.apellido}
+                          </Text>
+                          <Text className="text-base">
+                            {integrante.persona.numero_telefono}
+                          </Text>
+                        </TouchableOpacity>
+                      ))
+                  ) : (
+                    <Text className="p-2 mx-2 text-base text-gray-500">
+                      No hay más miembros en este grupo.
+                    </Text>
+                  )}
+                </ScrollView>
               </>
             )}
 
-            {/* Mostrar los integrantes */}
-            <ScrollView>
-              {dataGrupoCompleto?.miembros?.map(
-                (integrante: any, index: number) => (
-                  <View
-                    key={index}
-                    className="p-2 mb-2 bg-white rounded shadow"
-                  >
-                    <Text className="text-lg">
-                      {integrante.persona.nombre} {integrante.persona.apellido}
-                    </Text>
-                    <Text className="text-base">
-                      {integrante.persona.numero_telefono}
-                    </Text>
-                  </View>
-                )
-              )}
-            </ScrollView>
-
             {/* Botones de acción */}
-            <View className="flex-row justify-between">
+            <View className="flex-row mt-4 justify-between">
               <TouchableOpacity
-                onPress={handleCloseModal}
+                onPress={() => {
+                  setDatosGrupo({
+                    grupo: {},
+                    miembros: [],
+                  });
+                  setGrupoId("");
+                  setModalVisibleGrupo(false);
+                }}
                 className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
               >
                 <Text className="text-center text-gray-700">Cerrar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  setModalVisiblePersona(true);
+                  setModalVisibleAgregarPersona(true);
                 }}
                 className="bg-blue-500 p-2 rounded-md flex-1"
                 disabled={isLoadingGrupoCompleto}
@@ -159,10 +264,11 @@ const GrupoModal = ({
         </View>
       </Modal>
 
+      {/* Añadir persona */}
       <Modal
         animationType="fade"
         transparent={true}
-        visible={modalVisiblePersona}
+        visible={modalVisibleAgregarPersona}
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
           <View className="w-80 p-5 bg-white rounded-xl shadow-lg">
@@ -182,7 +288,7 @@ const GrupoModal = ({
               <TouchableOpacity
                 onPress={() => {
                   setCelularPersona("");
-                  setModalVisiblePersona(false);
+                  setModalVisibleAgregarPersona(false);
                 }}
                 className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
               >
@@ -198,6 +304,18 @@ const GrupoModal = ({
           </View>
         </View>
       </Modal>
+
+      {/* Opciones persona */}
+      <OpcionesModal
+        modalVisible={modalVisibleOpciones}
+        setModalVisible={setModalVisibleOpciones}
+        colorOpcion1="#ff2222"
+        opcion1Texto="Eliminar"
+        handleOpcion1={() => {
+          handleEliminarPersona();
+          setModalVisibleOpciones(false);
+        }}
+      />
     </>
   );
 };

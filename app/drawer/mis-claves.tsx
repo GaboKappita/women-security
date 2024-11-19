@@ -142,7 +142,6 @@ export default function MisClavesScreen() {
   ] = useEliminarClaveMutation();
 
   const handleEliminarClave = () => {
-    setModalVisibleEditar(false);
     setRefetching(true);
     eliminarClave({
       id_clave: idPalabraClave,
@@ -271,63 +270,7 @@ export default function MisClavesScreen() {
         }}
       />
 
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisibleEditar}
-      >
-        <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="w-80 p-5 bg-white rounded-xl shadow-lg">
-            <Text className="text-lg font-bold text-center mb-4">
-              Editar clave
-            </Text>
-
-            <Text className="mb-4 font-bold">Ingresa la palabra clave</Text>
-            <View className="bg-white rounded-lg shadow shadow-black mb-4">
-              <TextInput
-                className="px-4 py-3 text-base"
-                value={palabraClave}
-                onChangeText={setPalabraClave}
-                placeholder="Escribe aqui..."
-              />
-            </View>
-
-            <Text className="mb-4 font-bold">Tipo de gravedad</Text>
-            {!isLoadingGravedad && (
-              <View className="bg-white rounded-lg shadow shadow-black mb-4">
-                <TouchableWithoutFeedback
-                  onPress={() => setModalVisibleGravedades(true)}
-                >
-                  <View className="px-4 py-3 text-base">
-                    <Text>{selectedGravedad?.descripcion}</Text>
-                  </View>
-                </TouchableWithoutFeedback>
-              </View>
-            )}
-
-            <View className="flex-row gap-x-4 justify-between">
-              <TouchableOpacity
-                onPress={() => {
-                  setModalVisibleEditar(false);
-                  setSelectedGravedad({});
-                }}
-                className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
-              >
-                <Text className="text-center text-gray-700">Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  handleEditarClave();
-                }}
-                className="bg-blue-500 p-2 rounded-md flex-1"
-              >
-                <Text className="text-center text-white">Editar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
+      {/* Agregar clave */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -392,6 +335,65 @@ export default function MisClavesScreen() {
         </View>
       </Modal>
 
+      {/* Editar clave */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisibleEditar}
+      >
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="w-80 p-5 bg-white rounded-xl shadow-lg">
+            <Text className="text-lg font-bold text-center mb-4">
+              Editar clave
+            </Text>
+
+            <Text className="mb-4 font-bold">Ingresa la palabra clave</Text>
+            <View className="bg-white rounded-lg shadow shadow-black mb-4">
+              <TextInput
+                className="px-4 py-3 text-base"
+                value={palabraClave}
+                onChangeText={setPalabraClave}
+                placeholder="Escribe aqui..."
+              />
+            </View>
+
+            <Text className="mb-4 font-bold">Tipo de gravedad</Text>
+            {!isLoadingGravedad && (
+              <View className="bg-white rounded-lg shadow shadow-black mb-4">
+                <TouchableWithoutFeedback
+                  onPress={() => setModalVisibleGravedades(true)}
+                >
+                  <View className="px-4 py-3 text-base">
+                    <Text>{selectedGravedad?.descripcion}</Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            )}
+
+            <View className="flex-row gap-x-4 justify-between">
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisibleEditar(false);
+                  setSelectedGravedad({});
+                }}
+                className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
+              >
+                <Text className="text-center text-gray-700">Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  handleEditarClave();
+                }}
+                className="bg-blue-500 p-2 rounded-md flex-1"
+              >
+                <Text className="text-center text-white">Editar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Seleccion tipo gravedad */}
       <Modal
         animationType="fade"
         transparent={true}

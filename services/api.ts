@@ -128,19 +128,6 @@ export const apiSlice = createApi({
       keepUnusedDataFor: 0,
       providesTags: [],
     }),
-    insertarClave: builder.mutation({
-      query: ({ id_gravedad, id_usuario, palabra, id_mensaje }) => ({
-        url: "guardar-clave",
-        method: "POST",
-        body: {
-          id_gravedad,
-          id_usuario,
-          palabra,
-          id_mensaje,
-        },
-      }),
-      invalidatesTags: [],
-    }),
     actualizarUbicacion: builder.mutation({
       query: ({ id_persona, tipo, id_grupo, id_persona_buscar }) => ({
         url: "actualizar-ubicacion-seleccion",
@@ -218,6 +205,17 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: [],
     }),
+    eliminarUsuarioGrupo: builder.mutation({
+      query: ({ id_grupo, id_usuario }) => ({
+        url: "grupo/eliminar-usuario",
+        method: "POST",
+        body: {
+          id_grupo,
+          id_usuario,
+        },
+      }),
+      invalidatesTags: [],
+    }),
     crearGrupo: builder.mutation({
       query: ({
         nombre_grupo,
@@ -242,6 +240,27 @@ export const apiSlice = createApi({
         method: "DELETE",
         body: {
           id_grupo,
+        },
+      }),
+      invalidatesTags: [],
+    }),
+    editarGrupo: builder.mutation({
+      query: ({ id_grupo, nombre_grupo, color_hex, descripcion }) => ({
+        url: "editar-grupo",
+        method: "PUT",
+        body: { id_grupo, nombre_grupo, color_hex, descripcion },
+      }),
+      invalidatesTags: [],
+    }),
+    insertarClave: builder.mutation({
+      query: ({ id_gravedad, id_usuario, palabra, id_mensaje }) => ({
+        url: "guardar-clave",
+        method: "POST",
+        body: {
+          id_gravedad,
+          id_usuario,
+          palabra,
+          id_mensaje,
         },
       }),
       invalidatesTags: [],
@@ -278,15 +297,17 @@ export const {
   useListarInvitacionesQuery,
   useListarMensajesQuery,
   useListarUbicacionSeleccionQuery,
-  useInsertarClaveMutation,
   useActualizarUbicacionMutation,
   useGenerarAlertaMutation,
   useGuardarContactoMutation,
   useEliminarContactoMutation,
   useEditarContactoMutation,
   useInvitarUsuarioMutation,
+  useEliminarUsuarioGrupoMutation,
   useCrearGrupoMutation,
   useEliminarGrupoMutation,
+  useEditarGrupoMutation,
+  useInsertarClaveMutation,
   useEliminarClaveMutation,
   useEditarClaveMutation,
 } = apiSlice;
