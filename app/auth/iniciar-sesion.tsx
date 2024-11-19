@@ -34,6 +34,7 @@ export default function IniciarSesionScreen() {
   const user = useSelector((state: any) => state.auth.user);
   const [correo, setCorreo] = useState("gaboolivaresopazo@gmail.com");
   const [contrasena, setContrasena] = useState("Hola123$&");
+  const [isPressed, setIsPressed] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -113,15 +114,14 @@ export default function IniciarSesionScreen() {
 
                   <TouchableOpacity
                     activeOpacity={0.8}
-                    className={`h-12 bg-[#ff80b5] rounded-md justify-center items-center my-4 ${
-                      mutation.status === "pending" ? "opacity-50" : ""
-                    }`}
+                    className={`h-12 bg-[#ff80b5] rounded-md justify-center items-center my-4 `}
                     onPress={() => {
+                      setIsPressed(true);
                       handleSubmit();
                     }}
-                    disabled={mutation.status === "pending"}
+                    disabled={mutation.status === "pending" || isPressed}
                   >
-                    {mutation.status === "pending" ? (
+                    {mutation.status === "pending" || isPressed ? (
                       <ActivityIndicator color="#fff" />
                     ) : (
                       <Text className="text-white font-bold text-lg">

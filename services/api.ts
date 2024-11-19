@@ -182,6 +182,30 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: [],
     }),
+    eliminarContacto: builder.mutation({
+      query: ({ id_contacto }) => ({
+        url: "borrar-contacto",
+        method: "DELETE",
+        body: {
+          id_contacto,
+        },
+      }),
+      invalidatesTags: [],
+    }),
+    editarContacto: builder.mutation({
+      query: ({ id_contacto, nombres, apellidos, celular, email }) => ({
+        url: "editar-contacto",
+        method: "PUT",
+        body: {
+          id_contacto,
+          nombres,
+          apellidos,
+          celular,
+          email,
+        },
+      }),
+      invalidatesTags: [],
+    }),
     invitarUsuario: builder.mutation({
       query: ({ id_grupo, celular, id_usuario_emisor }) => ({
         url: "invitar-usuario",
@@ -258,6 +282,8 @@ export const {
   useActualizarUbicacionMutation,
   useGenerarAlertaMutation,
   useGuardarContactoMutation,
+  useEliminarContactoMutation,
+  useEditarContactoMutation,
   useInvitarUsuarioMutation,
   useCrearGrupoMutation,
   useEliminarGrupoMutation,

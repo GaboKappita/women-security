@@ -30,14 +30,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function MisClavesScreen() {
   const { perfil, persona } = useSelector((state: RootState) => state.auth);
   const [refreshing, setRefreshing] = useState(false);
+  const [refetching, setRefetching] = useState(false);
   const [modalVisibleOpciones, setModalVisibleOpciones] = useState(false);
   const [modalVisibleAgregar, setModalVisibleAgregar] = useState(false);
   const [modalVisibleEditar, setModalVisibleEditar] = useState(false);
   const [modalVisibleGravedades, setModalVisibleGravedades] = useState(false);
   const [selectedGravedad, setSelectedGravedad] = useState<any>();
   const [palabraClave, setPalabraClave] = useState("");
-  const [nuevaPalabraClave, setNuevaPalabraClave] = useState("");
   const [idPalabraClave, setIdPalabraClave] = useState<any>();
+  const [nuevaPalabraClave, setNuevaPalabraClave] = useState("");
 
   const id_usuario = persona.id_persona;
 
@@ -73,27 +74,28 @@ export default function MisClavesScreen() {
 
   const handleAgregarClave = () => {
     setModalVisibleAgregar(false);
-
-    const data = {
+    setRefetching(true);
+    guardarClave({
       id_gravedad: selectedGravedad.id_gravedad,
       id_usuario: id_usuario,
       palabra: nuevaPalabraClave,
       id_mensaje: mensaje_predeterminado.id_mensaje,
-    };
-
-    guardarClave(data)
+    })
       .unwrap()
       .then((response: any) => {
-        setSelectedGravedad({});
-        setNuevaPalabraClave("");
         setRefreshing(true);
         refetch().finally(() => {
           setRefreshing(false);
+          setRefetching(false);
         });
       })
       .catch((error: any) => {
+        setRefetching(false);
         console.error("Error al enviar el Alerta:", error);
       });
+
+    setSelectedGravedad({});
+    setNuevaPalabraClave("");
   };
 
   const [
@@ -107,6 +109,7 @@ export default function MisClavesScreen() {
 
   const handleEditarClave = () => {
     setModalVisibleEditar(false);
+    setRefetching(true);
     editarClave({
       id_clave: idPalabraClave,
       id_gravedad: selectedGravedad.id_gravedad,
@@ -115,16 +118,18 @@ export default function MisClavesScreen() {
     })
       .unwrap()
       .then((response) => {
-        setSelectedGravedad({});
-        setPalabraClave("");
         setRefreshing(true);
         refetch().finally(() => {
           setRefreshing(false);
+          setRefetching(false);
         });
       })
       .catch((error) => {
+        setRefetching(false);
         console.error("Error al editar la clave:", error);
       });
+    setSelectedGravedad({});
+    setPalabraClave("");
   };
 
   const [
@@ -138,6 +143,7 @@ export default function MisClavesScreen() {
 
   const handleEliminarClave = () => {
     setModalVisibleEditar(false);
+    setRefetching(true);
     eliminarClave({
       id_clave: idPalabraClave,
     })
@@ -146,9 +152,11 @@ export default function MisClavesScreen() {
         setRefreshing(true);
         refetch().finally(() => {
           setRefreshing(false);
+          setRefetching(false);
         });
       })
       .catch((error) => {
+        setRefetching(false);
         console.error("Error al eliminar la clave:", error);
       });
   };
@@ -183,8 +191,12 @@ export default function MisClavesScreen() {
 
       <TouchableOpacity
         activeOpacity={0.75}
-        className="bg-[#ff80b5] justify-center items-center rounded p-3 mb-4"
-        onPress={() => setModalVisibleAgregar(true)}
+        className="bg-[#ff80b5] justify-center items-center rounded p-4 mb-4"
+        onPress={() => {
+          setNuevaPalabraClave("");
+          setSelectedGravedad({});
+          setModalVisibleAgregar(true);
+        }}
       >
         <Text className="text-white text-base">
           + Agregar una palabra clave
@@ -201,7 +213,7 @@ export default function MisClavesScreen() {
           </Text>
         </View>
         <View className="w-11/12 h-[2px] bg-gray-400 mx-auto my-2" />
-        {isLoadingClaves || refreshing ? (
+        {isLoadingClaves || refreshing || refetching ? (
           <Text className="text-center text-lg mt-4 text-black">
             Cargando...
           </Text>
