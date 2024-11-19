@@ -14,22 +14,26 @@ import { RootState } from "../../redux/store";
 import { useCallback, useState } from "react";
 import {
   useCrearGrupoMutation,
-  useInvitarUsuarioMutation,
-  useListarGrupoCompletoQuery,
   useListarGruposQuery,
+  useListarUbicacionSeleccionQuery,
 } from "../../../services/api";
+import { router } from "expo-router";
+import GrupoModal from "../../../components/modals/ModalGrupo";
+import GrupoOpcionesModal from "../../../components/modals/ModalOpcionesGrupo";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function GruposScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { perfil, persona } = useSelector((state: RootState) => state.auth);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisibleGrupo, setModalVisibleGrupo] = useState(false);
-  const [modalVisiblePersona, setModalVisiblePersona] = useState(false);
+  const [modalVisibleOpcionesGrupo, setModalVisibleOpcionesGrupo] =
+    useState(false);
   const [grupoCompleto, setGrupoCompleto] = useState<any>(null);
   const [grupoId, setGrupoId] = useState("");
+  const [idGrupoOpciones, setIdGrupoOpciones] = useState("");
   const [nombreGrupo, setNombreGrupo] = useState("");
   const [descripcionGrupo, setDescripcionGrupo] = useState("");
-  const [celularPersona, setCelularPersona] = useState("");
 
   const id_usuario = persona.id_persona;
   const imagen_usuario = perfil.imagen_usuario;
@@ -42,6 +46,13 @@ export default function GruposScreen() {
     isLoading: isLoadingGrupos,
     refetch,
   } = useListarGruposQuery({ id_usuario: id_usuario });
+
+  // const {
+  //   data: dataGrupoSeleccionado,
+  //   error: errorGrupoSeleccionado,
+  //   isLoading: isLoadingGrupoSeleccionado,
+  //   refetch: refetchGrupoSeleccionado,
+  // } = useListarUbicacionSeleccionQuery({ id_persona: id_usuario });
 
   const handleAgregarGrupo = () => {
     handleCrearGrupo(nombreGrupo, descripcionGrupo);
@@ -75,57 +86,15 @@ export default function GruposScreen() {
         console.error("Error al enviar el Alerta:", error);
       });
   };
+  const handleMostrarDetallesGrupo = (grupoId: any) => {
+    setGrupoId(grupoId);
+    setModalVisibleGrupo(true);
+  };
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     refetch().finally(() => setRefreshing(false));
   }, [refetch]);
-
-  const [triggerQuery, setTriggerQuery] = useState(false);
-  const {
-    data: dataGrupoCompleto,
-    error: errorGrupoCompleto,
-    isLoading: isLoadingGrupoCompleto,
-    refetch: refetchGrupoCompleto,
-  } = useListarGrupoCompletoQuery(
-    { id_grupo: grupoId },
-    { skip: !triggerQuery }
-  );
-
-  const handleMostrarDetallesGrupo = (grupoId: any) => {
-    setGrupoId(grupoId);
-    setTriggerQuery(true);
-    setModalVisibleGrupo(true);
-  };
-
-  const handleAgregarPersona = () => {
-    handleAgregarPersonaGrupo(celularPersona);
-    setCelularPersona("");
-    setModalVisiblePersona(false);
-    setModalVisibleGrupo(false);
-  };
-
-  const [
-    invitarPersona,
-    { isLoading: isLoadingInvitado, error: errorInvitado, data: dataInvitado },
-  ] = useInvitarUsuarioMutation();
-
-  const handleAgregarPersonaGrupo = async (celular: string) => {
-    const data = {
-      id_grupo: grupoId,
-      celular: celular,
-      id_usuario_creador: id_usuario,
-    };
-
-    invitarPersona(data)
-      .unwrap()
-      .then((response: any) => {
-        console.log(response);
-      })
-      .catch((error: any) => {
-        console.error("Error al enviar el Alerta:", error);
-      });
-  };
 
   return (
     <ScrollView
@@ -170,40 +139,84 @@ export default function GruposScreen() {
       >
         <Text className="text-white text-base">+ Crear un grupo</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.75}
+        className="bg-[#ff80b5] justify-center items-center rounded p-3 mb-4"
+        onPress={() => router.push("/drawer/invitaciones")}
+      >
+        <Text className="text-white text-base">Ver invitaciones</Text>
+      </TouchableOpacity>
 
-      {!isLoadingGrupos && dataGrupos.grupos ? (
-        <>
+      {!isLoadingGrupos ? (
+        dataGrupos.grupos ? (
+          <>
+            <View className="flex flex-row items-center justify-between mb-4">
+              <Text className="text-lg text-black">
+                Grupos a los que perteneces
+              </Text>
+            </View>
+            <View>
+              {dataGrupos?.grupos.map((item: any, index: number) => (
+                <TouchableOpacity
+                  key={index}
+                  activeOpacity={0.75}
+                  className="bg-white p-4 mb-4 flex-row justify-between items-center rounded-lg shadow shadow-black w-full relative"
+                  onPress={() => handleMostrarDetallesGrupo(item.id_grupo)}
+                >
+                  <View className="w-10/12">
+                    <Text
+                      className="text-lg font-bold
+                    text-black"
+                    >
+                      {item.nombre_grupo}
+                    </Text>
+                    <Text className="text-base text-black">
+                      {item.descripcion}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    className="justify-center items-center h-10 w-10"
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      setIdGrupoOpciones(item.id_grupo);
+                      setModalVisibleOpcionesGrupo(true);
+                    }}
+                  >
+                    <MaterialCommunityIcons name="dots-vertical" size={32} />
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        ) : (
           <View className="flex flex-row items-center justify-between mb-4">
-            <Text className="text-lg text-black">
-              Grupos a los que perteneces
+            <Text className="text-lg text-black text-center w-full">
+              No perteneces a ningún grupo
             </Text>
           </View>
-          <View>
-            {dataGrupos?.grupos.map((item: any, index: number) => (
-              <TouchableOpacity
-                key={index}
-                activeOpacity={0.75}
-                className="bg-white p-4 mb-4 rounded-lg shadow shadow-black w-full relative"
-                onPress={() => handleMostrarDetallesGrupo(item.id_grupo)}
-              >
-                <Text
-                  className="text-lg font-bold
-                 text-black"
-                >
-                  {item.nombre_grupo}
-                </Text>
-                <Text className="text-base text-black">{item.descripcion}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </>
+        )
       ) : (
         <View className="flex flex-row items-center justify-between mb-4">
           <Text className="text-lg text-black text-center w-full">
-            No perteneces a ningún grupo
+            Cargando grupos...
           </Text>
         </View>
       )}
+
+      <GrupoModal
+        grupoId={grupoId}
+        setGrupoId={setGrupoId}
+        modalVisibleGrupo={modalVisibleGrupo}
+        setModalVisibleGrupo={setModalVisibleGrupo}
+        id_usuario={id_usuario}
+      />
+
+      <GrupoOpcionesModal
+        modalVisibleGrupo={modalVisibleOpcionesGrupo}
+        setModalVisibleGrupo={setModalVisibleOpcionesGrupo}
+        id_grupo={idGrupoOpciones}
+        setIdGrupoOpciones={setIdGrupoOpciones}
+      />
 
       <Modal animationType="fade" transparent={true} visible={modalVisible}>
         <View className="flex-1 bg-black/50 justify-center items-center">
@@ -243,112 +256,6 @@ export default function GruposScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleAgregarGrupo}
-                className="bg-blue-500 p-2 rounded-md flex-1"
-              >
-                <Text className="text-center text-white">Agregar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisibleGrupo}
-      >
-        <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="w-11/12 p-5 bg-[#F5F5F5] rounded-xl shadow-lg">
-            {isLoadingGrupoCompleto ? (
-              <Text className="text-center w-full">Cargando detalles...</Text>
-            ) : errorGrupoCompleto ? (
-              <Text>Error al cargar detalles</Text>
-            ) : (
-              <>
-                <Text className="text-lg font-bold text-center">
-                  {dataGrupoCompleto?.grupo.nombre_grupo}
-                </Text>
-                <Text className="text-base text-center mb-4">
-                  {dataGrupoCompleto?.grupo.descripcion}
-                </Text>
-              </>
-            )}
-
-            {/* Mostrar los integrantes */}
-            <ScrollView>
-              {dataGrupoCompleto?.miembros?.map(
-                (integrante: any, index: number) => (
-                  <View
-                    key={index}
-                    className="p-2 mb-2 bg-white rounded shadow"
-                  >
-                    <Text className="text-lg">
-                      {integrante.persona.nombre} {integrante.persona.apellido}
-                    </Text>
-                    <Text className="text-base">
-                      {integrante.persona.numero_telefono}
-                    </Text>
-                  </View>
-                )
-              )}
-            </ScrollView>
-
-            {/* Botones de acción */}
-            <View className="flex-row justify-between">
-              <TouchableOpacity
-                onPress={() => {
-                  setModalVisibleGrupo(false);
-                  setGrupoId("");
-                  refetchGrupoCompleto();
-                }}
-                className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
-              >
-                <Text className="text-center text-gray-700">Cerrar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setModalVisiblePersona(true);
-                }}
-                className="bg-blue-500 p-2 rounded-md flex-1"
-              >
-                <Text className="text-center text-white">Añadir persona</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisiblePersona}
-      >
-        <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="w-80 p-5 bg-white rounded-xl shadow-lg">
-            <Text className="text-lg font-bold text-center mb-4">
-              Añadir persona
-            </Text>
-
-            <TextInput
-              value={celularPersona}
-              onChangeText={setCelularPersona}
-              placeholder="Número de celular de la persona"
-              className="border border-gray-300 p-2 mb-4 rounded-md"
-            />
-
-            {/* Botones de acción */}
-            <View className="flex-row justify-between">
-              <TouchableOpacity
-                onPress={() => {
-                  setCelularPersona("");
-                  setModalVisiblePersona(false);
-                }}
-                className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
-              >
-                <Text className="text-center text-gray-700">Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleAgregarPersona}
                 className="bg-blue-500 p-2 rounded-md flex-1"
               >
                 <Text className="text-center text-white">Agregar</Text>

@@ -1,4 +1,3 @@
-// HomeScreen.tsx
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -17,6 +16,18 @@ import { Modal } from "react-native";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useGenerarAlertaMutation } from "../../../services/api";
+import { onValue, ref } from "firebase/database";
+import { database } from "../../../firebaseConfig";
+
+// interface UserLocation {
+//   latitud: number;
+//   longitud: number;
+//   timestamp?: number;
+// }
+
+// type UserLocations = {
+//   [userId: string]: UserLocation;
+// };
 
 export default function HomeScreen() {
   const { perfil, persona } = useSelector((state: RootState) => state.auth);
@@ -69,7 +80,7 @@ export default function HomeScreen() {
         const { latitude, longitude } = userLocation.coords;
 
         console.log(latitude, longitude);
-        
+
         // Llamar a handleEnviarAlerta con la ubicación actual
         handleEnviarAlerta(latitude, longitude);
       } catch (error) {
@@ -88,25 +99,62 @@ export default function HomeScreen() {
     setModalVisible(false);
   };
 
+  useEffect(() => {
+    // Solicitar permisos de ubicación y obtener la ubicación del usuario actual
+    const getMyLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permiso de ubicación denegado");
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      setLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      });
+    };
+
+    getMyLocation();
+
+    // Escuchar ubicaciones de otros usuarios específicos en Firebase
+    // const locationsRef = ref(database, 'ubicaciones');
+    // const unsubscribe = onValue(locationsRef, (snapshot) => {
+    //   const data = snapshot.val();
+    //   if (data) {
+    //     const filteredLocations: UserLocations = Object.keys(data)
+    //       .filter((userId) => specificUsers.includes(userId))
+    //       .reduce((acc, userId) => {
+    //         acc[userId] = data[userId];
+    //         return acc;
+    //       }, {} as UserLocations);
+
+    //     setUserLocations(filteredLocations);
+    //   }
+    // });
+
+    // return () => unsubscribe();
+  }, []);
+
   const requestLocationPermissions = async () => {
     let foregroundStatus: Location.PermissionStatus | null = null;
     let backgroundStatus: Location.PermissionStatus | null = null;
 
     try {
+      // Solicitar permisos de ubicación en primer plano
       const { status: fgStatus } =
         await Location.requestForegroundPermissionsAsync();
       foregroundStatus = fgStatus;
 
-      if (Platform.OS === "android") {
-        const { status: bgStatus } =
-          await Location.requestBackgroundPermissionsAsync();
-        backgroundStatus = bgStatus;
-      }
+      // Solicitar permisos de ubicación en segundo plano (solo Android)
+      const { status: bgStatus } =
+        await Location.requestBackgroundPermissionsAsync();
+      backgroundStatus = bgStatus;
 
-      if (
-        foregroundStatus === "granted" &&
-        (Platform.OS === "ios" || backgroundStatus === "granted")
-      ) {
+      // Verificar si ambos permisos han sido otorgados
+      if (foregroundStatus === "granted" && backgroundStatus === "granted") {
         setLocationEnabled(true);
         const userLocation = await Location.getCurrentPositionAsync({});
         const newLocation = {
@@ -115,6 +163,7 @@ export default function HomeScreen() {
           latitudeDelta: 0.005,
           longitudeDelta: 0.005,
         };
+
         setLocation(newLocation);
 
         if (mapRef.current) {
@@ -138,7 +187,14 @@ export default function HomeScreen() {
         [
           {
             text: "Ir a configuración",
-            onPress: () => Linking.openSettings(),
+            onPress: async () => {
+              const canOpen = await Linking.canOpenURL("app-settings:");
+              if (canOpen) {
+                Linking.openSettings();
+              } else {
+                Alert.alert("Error", "No se pudo abrir la configuración.");
+              }
+            },
           },
         ],
         { cancelable: false }
@@ -150,7 +206,7 @@ export default function HomeScreen() {
     if (!locationEnabled || !location) {
       requestLocationPermissions();
     }
-  }, []);
+  }, [locationEnabled, location]);
 
   return (
     <View style={{ flex: 1 }}>

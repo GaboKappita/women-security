@@ -95,6 +95,39 @@ export const apiSlice = createApi({
       keepUnusedDataFor: 0,
       providesTags: [],
     }),
+    listarInvitaciones: builder.query({
+      query: ({ id_usuario }) => {
+        const params = { id_usuario };
+        return {
+          url: "ver-invitaciones",
+          params,
+        };
+      },
+      keepUnusedDataFor: 0,
+      providesTags: [],
+    }),
+    listarMensajes: builder.query({
+      query: ({ id_persona }) => {
+        const params = { id_persona };
+        return {
+          url: "obtener-mensajes",
+          params,
+        };
+      },
+      keepUnusedDataFor: 0,
+      providesTags: [],
+    }),
+    listarUbicacionSeleccion: builder.query({
+      query: ({ id_persona }) => {
+        const params = { id_persona };
+        return {
+          url: "obtener-ubicacion-seleccion",
+          params,
+        };
+      },
+      keepUnusedDataFor: 0,
+      providesTags: [],
+    }),
     insertarClave: builder.mutation({
       query: ({ id_gravedad, id_usuario, palabra, id_mensaje }) => ({
         url: "guardar-clave",
@@ -104,9 +137,19 @@ export const apiSlice = createApi({
           id_usuario,
           palabra,
           id_mensaje,
-          /* 
-          ...(palabra && { palabra }),
-           */
+        },
+      }),
+      invalidatesTags: [],
+    }),
+    actualizarUbicacion: builder.mutation({
+      query: ({ id_persona, tipo, id_grupo, id_persona_buscar }) => ({
+        url: "actualizar-ubicacion-seleccion",
+        method: "POST",
+        body: {
+          id_persona,
+          tipo,
+          id_grupo,
+          id_persona_buscar,
         },
       }),
       invalidatesTags: [],
@@ -169,6 +212,34 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: [],
     }),
+    eliminarGrupo: builder.mutation({
+      query: ({ id_grupo }) => ({
+        url: "eliminar-grupo",
+        method: "DELETE",
+        body: {
+          id_grupo,
+        },
+      }),
+      invalidatesTags: [],
+    }),
+    eliminarClave: builder.mutation({
+      query: ({ id_clave }) => ({
+        url: "eliminar-clave",
+        method: "DELETE",
+        body: {
+          id_clave,
+        },
+      }),
+      invalidatesTags: [],
+    }),
+    editarClave: builder.mutation({
+      query: ({ id_clave, id_gravedad, id_mensaje, palabra }) => ({
+        url: "editar-clave",
+        method: "PUT",
+        body: { id_clave, id_gravedad, id_mensaje, palabra },
+      }),
+      invalidatesTags: [],
+    }),
   }),
 });
 
@@ -180,9 +251,16 @@ export const {
   useListarContactosQuery,
   useListarGruposQuery,
   useListarGrupoCompletoQuery,
+  useListarInvitacionesQuery,
+  useListarMensajesQuery,
+  useListarUbicacionSeleccionQuery,
   useInsertarClaveMutation,
+  useActualizarUbicacionMutation,
   useGenerarAlertaMutation,
   useGuardarContactoMutation,
-  useCrearGrupoMutation,
   useInvitarUsuarioMutation,
+  useCrearGrupoMutation,
+  useEliminarGrupoMutation,
+  useEliminarClaveMutation,
+  useEditarClaveMutation,
 } = apiSlice;

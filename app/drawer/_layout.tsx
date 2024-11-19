@@ -8,10 +8,6 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function DrawerLayout() {
   const pathname = usePathname();
-  const dispatch = useDispatch();
-  const { perfil, persona } = useSelector((state: RootState) => state.auth);
-  const imagen_usuario = perfil.imagen_usuario;
-
   return (
     <Drawer
       screenOptions={{
@@ -45,13 +41,16 @@ export default function DrawerLayout() {
         name="configuracion"
         options={{ title: "configuracion" }}
       />
+      <Drawer.Screen
+        name="invitaciones"
+        options={{ title: "Mis invitaciones" }}
+      />
     </Drawer>
   );
 }
 
 function CustomDrawerContent({ navigation }: any) {
   const pathname = usePathname();
-  const dispatch = useDispatch();
   const { perfil, persona } = useSelector((state: RootState) => state.auth);
   const imagen_usuario = perfil.imagen_usuario;
 
@@ -103,7 +102,7 @@ function CustomDrawerContent({ navigation }: any) {
             // router.push("/(drawer)/(tabs)/home");
           }}
         />
-        <DrawerItem
+        {/* <DrawerItem
           label={"Registrar clave"}
           icon={({ color, size }) => (
             <Ionicons
@@ -125,7 +124,7 @@ function CustomDrawerContent({ navigation }: any) {
             navigation.navigate("registrar-clave");
             // router.push("/drawer/registrar-clave");
           }}
-        />
+        /> */}
         <DrawerItem
           label={"Mis contactos"}
           icon={({ color, size }) => (

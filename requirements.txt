@@ -16,14 +16,4 @@ npm install react-redux
 npm install @reduxjs/toolkit
 npm install yup formik react-native-formik
 npm install axios
-
-
-
-
-
-
-
-
-
-
-
+npm install firebase
