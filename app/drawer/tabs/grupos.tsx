@@ -17,6 +17,7 @@ import {
   useCrearGrupoMutation,
   useEditarGrupoMutation,
   useEliminarGrupoMutation,
+  useEliminarUsuarioGrupoMutation,
   useListarGruposQuery,
   useListarUbicacionSeleccionQuery,
 } from "../../../services/api";
@@ -35,6 +36,10 @@ export default function GruposScreen() {
   const [modalVisibleGrupo, setModalVisibleGrupo] = useState(false);
   const [modalVisibleOpcionesGrupo, setModalVisibleOpcionesGrupo] =
     useState(false);
+  const [
+    modalVisibleOpcionesMiembroGrupo,
+    setModalVisibleOpcionesMiembroGrupo,
+  ] = useState(false);
   const [grupoCompleto, setGrupoCompleto] = useState<any>(null);
   const [grupoId, setGrupoId] = useState("");
   const [nombreGrupo, setNombreGrupo] = useState("");
@@ -43,23 +48,19 @@ export default function GruposScreen() {
   const id_usuario = persona.id_persona;
   const imagen_usuario = perfil.imagen_usuario;
 
-  const handleModalImagen = () => {};
-
   const {
     data: dataGrupos = { grupos: [] },
     error: errorGrupos,
     isLoading: isLoadingGrupos,
     refetch,
   } = useListarGruposQuery({ id_usuario: id_usuario });
-  // console.log(dataGrupos.grupos);
 
   const {
-    data: dataGrupoSeleccionado,
+    data: dataGrupoSeleccionado = { id_relacion: "" },
     error: errorGrupoSeleccionado,
     isLoading: isLoadingGrupoSeleccionado,
     refetch: refetchGrupoSeleccionado,
   } = useListarUbicacionSeleccionQuery({ id_persona: id_usuario });
-  console.log(dataGrupoSeleccionado);
 
   const [
     actualizarSeleccion,
@@ -188,6 +189,35 @@ export default function GruposScreen() {
       });
   };
 
+  const [
+    eliminarUsuarioGrupo,
+    {
+      isLoading: isLoadingEliminarUsuarioGrupo,
+      error: errorEliminarUsuarioGrupo,
+      data: dataEliminarUsuarioGrupo,
+    },
+  ] = useEliminarUsuarioGrupoMutation();
+
+  const handleSalirseGrupo = () => {
+    setRefetching(true);
+    eliminarUsuarioGrupo({
+      id_grupo: grupoId,
+      id_usuario: id_usuario,
+    })
+      .unwrap()
+      .then((response) => {
+        setRefreshing(true);
+        refetch().finally(() => {
+          setRefreshing(false);
+          setRefetching(false);
+        });
+      })
+      .catch((error) => {
+        setRefetching(false);
+        console.error("Error al eliminar el usuario del grupo:", error);
+      });
+  };
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     refetch().finally(() => {
@@ -205,13 +235,7 @@ export default function GruposScreen() {
       <StatusBar style="light" backgroundColor="black" />
       <View className="bg-white shadow shadow-black rounded p-4 mb-4">
         <View className="flex flex-row justify-center items-center w-full">
-          <TouchableOpacity
-            activeOpacity={0.7}
-            className="w-16 h-16 bg-white mr-4 border-black border-2 rounded-full flex items-center justify-center overflow-hidden"
-            onPress={() => {
-              handleModalImagen();
-            }}
-          >
+          <View className="w-16 h-16 bg-white mr-4 border-black border-2 rounded-full flex items-center justify-center overflow-hidden">
             <Image
               className="w-full h-full"
               source={
@@ -220,7 +244,7 @@ export default function GruposScreen() {
                   : require("../../../assets/profile-user.png")
               }
             />
-          </TouchableOpacity>
+          </View>
           <View>
             <Text className="text-black text-lg flex">
               {persona.nombre} {persona.apellido}
@@ -250,7 +274,10 @@ export default function GruposScreen() {
         <Text className="text-white text-base">Ver invitaciones</Text>
       </TouchableOpacity>
 
-      {isLoadingGrupos || refreshing || refetching ? (
+      {isLoadingGrupos ||
+      isLoadingGrupoSeleccionado ||
+      refreshing ||
+      refetching ? (
         <View className="flex flex-row items-center justify-between mb-4">
           <Text className="text-lg text-black text-center w-full">
             Cargando grupos...
@@ -258,44 +285,91 @@ export default function GruposScreen() {
         </View>
       ) : dataGrupos?.grupos && dataGrupos?.grupos?.length > 0 ? (
         <>
+          {/* Mostrar el grupo seleccionado */}
+          {dataGrupoSeleccionado && dataGrupoSeleccionado?.id_relacion && (
+            <View>
+              <View className="flex flex-row items-center justify-between mb-4">
+                <Text className="text-lg text-black">Grupo seleccionado</Text>
+              </View>
+              <TouchableOpacity
+                activeOpacity={0.75}
+                className="bg-white p-4 mb-4 flex-row justify-between items-center rounded-lg shadow shadow-black w-full relative"
+                onPress={() => {
+                  setGrupoId(dataGrupoSeleccionado.id_relacion);
+                  setModalVisibleGrupo(true);
+                }}
+              >
+                <View className="w-10/12">
+                  <Text className="text-lg font-bold text-black">
+                    {dataGrupoSeleccionado.grupo.nombre_grupo}
+                  </Text>
+                  <Text className="text-base text-black">
+                    {dataGrupoSeleccionado.grupo.descripcion}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Mostrar los demás grupos */}
           <View className="flex flex-row items-center justify-between mb-4">
             <Text className="text-lg text-black">
               Grupos a los que perteneces
             </Text>
           </View>
           <View>
-            {dataGrupos.grupos.map((item: any, index: number) => (
-              <TouchableOpacity
-                key={index}
-                activeOpacity={0.75}
-                className="bg-white p-4 mb-4 flex-row justify-between items-center rounded-lg shadow shadow-black w-full relative"
-                onPress={() => {
-                  setGrupoId(item.id_grupo);
-                  setModalVisibleGrupo(true);
-                }}
-              >
-                <View className="w-10/12">
-                  <Text className="text-lg font-bold text-black">
-                    {item.nombre_grupo}
-                  </Text>
-                  <Text className="text-base text-black">
-                    {item.descripcion}
-                  </Text>
-                </View>
+            {dataGrupos.grupos
+              .filter(
+                (item: any) =>
+                  item.id_grupo !== dataGrupoSeleccionado?.id_relacion
+              )
+              .map((item: any, index: number) => (
                 <TouchableOpacity
-                  className="justify-center items-center h-10 w-10"
-                  activeOpacity={0.7}
+                  key={index}
+                  activeOpacity={0.75}
+                  className="bg-white p-4 mb-4 flex-row justify-between items-center rounded-lg shadow shadow-black w-full relative"
                   onPress={() => {
                     setGrupoId(item.id_grupo);
-                    setNombreGrupo(item.nombre_grupo);
-                    setDescripcionGrupo(item.descripcion);
-                    setModalVisibleOpcionesGrupo(true);
+                    setModalVisibleGrupo(true);
                   }}
                 >
-                  <MaterialCommunityIcons name="dots-vertical" size={32} />
+                  <View className="w-10/12">
+                    <Text className="text-lg font-bold text-black">
+                      {item.nombre_grupo}
+                    </Text>
+                    <Text className="text-base text-black">
+                      {item.descripcion}
+                    </Text>
+                  </View>
+                  {item.id_usuario == id_usuario ? (
+                    <TouchableOpacity
+                      className="justify-center items-center h-10 w-10"
+                      activeOpacity={0.7}
+                      onPress={() => {
+                        setGrupoId(item.id_grupo);
+                        setNombreGrupo(item.nombre_grupo);
+                        setDescripcionGrupo(item.descripcion);
+                        setModalVisibleOpcionesGrupo(true);
+                      }}
+                    >
+                      <MaterialCommunityIcons name="dots-vertical" size={32} />
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      className="justify-center items-center h-10 w-10"
+                      activeOpacity={0.7}
+                      onPress={() => {
+                        setGrupoId(item.id_grupo);
+                        setNombreGrupo(item.nombre_grupo);
+                        setDescripcionGrupo(item.descripcion);
+                        setModalVisibleOpcionesMiembroGrupo(true);
+                      }}
+                    >
+                      <MaterialCommunityIcons name="dots-vertical" size={32} />
+                    </TouchableOpacity>
+                  )}
                 </TouchableOpacity>
-              </TouchableOpacity>
-            ))}
+              ))}
           </View>
         </>
       ) : (
@@ -315,7 +389,7 @@ export default function GruposScreen() {
         id_usuario={id_usuario}
       />
 
-      {/* Opciones */}
+      {/* Opciones dueño grupo */}
       <OpcionesModal
         modalVisible={modalVisibleOpcionesGrupo}
         setModalVisible={setModalVisibleOpcionesGrupo}
@@ -336,6 +410,18 @@ export default function GruposScreen() {
         handleOpcion3={() => {
           handleEliminarGrupo();
           setModalVisibleOpcionesGrupo(false);
+        }}
+      />
+
+      {/* Opciones miembro grupo */}
+      <OpcionesModal
+        modalVisible={modalVisibleOpcionesMiembroGrupo}
+        setModalVisible={setModalVisibleOpcionesMiembroGrupo}
+        colorOpcion1="#ff2222"
+        opcion1Texto="Salirse del grupo"
+        handleOpcion1={() => {
+          handleSalirseGrupo();
+          setModalVisibleOpcionesMiembroGrupo(false);
         }}
       />
 

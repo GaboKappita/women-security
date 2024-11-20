@@ -216,6 +216,17 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: [],
     }),
+    responderInvitacion: builder.mutation({
+      query: ({ id_InvitacionGrupo, aceptar }) => ({
+        url: "responder-invitacion",
+        method: "POST",
+        body: {
+          id_InvitacionGrupo,
+          aceptar,
+        },
+      }),
+      invalidatesTags: [],
+    }),
     crearGrupo: builder.mutation({
       query: ({
         nombre_grupo,
@@ -304,6 +315,7 @@ export const {
   useEditarContactoMutation,
   useInvitarUsuarioMutation,
   useEliminarUsuarioGrupoMutation,
+  useResponderInvitacionMutation,
   useCrearGrupoMutation,
   useEliminarGrupoMutation,
   useEditarGrupoMutation,

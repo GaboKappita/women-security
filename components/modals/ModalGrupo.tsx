@@ -105,16 +105,16 @@ const GrupoModal = ({
   };
 
   const [
-    eliminarGrupo,
+    eliminarUsuarioGrupo,
     {
-      isLoading: isLoadingEliminarClave,
-      error: errorEliminarClave,
-      data: dataEliminarClave,
+      isLoading: isLoadingEliminareliminarUsuarioGrupo,
+      error: errorEliminareliminarUsuarioGrupo,
+      data: dataEliminareliminarUsuarioGrupo,
     },
   ] = useEliminarUsuarioGrupoMutation();
 
   const handleEliminarPersona = () => {
-    eliminarGrupo({
+    eliminarUsuarioGrupo({
       id_grupo: grupoId,
       id_usuario: integrante.id_usuario,
     })

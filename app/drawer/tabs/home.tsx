@@ -8,6 +8,7 @@ import {
   Linking,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
@@ -205,6 +206,20 @@ export default function HomeScreen() {
     return () => unsubscribe();
   }, [dataGrupoSeleccionado]);
 
+  const focusOnMarker = (latitude: any, longitude: any) => {
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude,
+          longitude,
+          latitudeDelta: 0.01, // Define el nivel de zoom
+          longitudeDelta: 0.01,
+        },
+        1000 // Duración de la animación en milisegundos
+      );
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
       {location ? (
@@ -243,6 +258,29 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.fab} onPress={handlePress}>
             <Text style={styles.fabText}>+</Text>
           </TouchableOpacity>
+
+          <View className="absolute bottom-4 left-4 bg-[#ff80b5] h-fit flex-col justify-center items-center max-h-64 w-16 p-2 rounded-lg">
+            <ScrollView className="h-full w-full">
+              {grupoUbicacion &&
+                Object.entries(grupoUbicacion).map(([id, usuario]) => (
+                  <TouchableOpacity
+                    key={id}
+                    className="w-full aspect-square bg-white mx-auto justify-center items-center rounded-full"
+                    onPress={() => {
+                      focusOnMarker(usuario.latitud, usuario.longitud);
+                    }}
+                  >
+                    <Image
+                      source={require("../../../assets/profile-user.png")}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    />
+                  </TouchableOpacity>
+                ))}
+            </ScrollView>
+          </View>
         </>
       ) : (
         <View
