@@ -121,7 +121,7 @@ export const apiSlice = createApi({
       query: ({ id_persona }) => {
         const params = { id_persona };
         return {
-          url: "obtener-ubicacion-seleccion",
+          url: "listar-ubicacion-seleccion",
           params,
         };
       },

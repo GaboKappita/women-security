@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useCallback, useState } from "react";
 import {
+  useActualizarUbicacionMutation,
   useCrearGrupoMutation,
   useEditarGrupoMutation,
   useEliminarGrupoMutation,
@@ -50,13 +51,48 @@ export default function GruposScreen() {
     isLoading: isLoadingGrupos,
     refetch,
   } = useListarGruposQuery({ id_usuario: id_usuario });
+  // console.log(dataGrupos.grupos);
 
-  // const {
-  //   data: dataGrupoSeleccionado,
-  //   error: errorGrupoSeleccionado,
-  //   isLoading: isLoadingGrupoSeleccionado,
-  //   refetch: refetchGrupoSeleccionado,
-  // } = useListarUbicacionSeleccionQuery({ id_persona: id_usuario });
+  const {
+    data: dataGrupoSeleccionado,
+    error: errorGrupoSeleccionado,
+    isLoading: isLoadingGrupoSeleccionado,
+    refetch: refetchGrupoSeleccionado,
+  } = useListarUbicacionSeleccionQuery({ id_persona: id_usuario });
+  console.log(dataGrupoSeleccionado);
+
+  const [
+    actualizarSeleccion,
+    {
+      isLoading: isLoadingActualizacion,
+      error: errorActualizacion,
+      data: dataActualizacion,
+    },
+  ] = useActualizarUbicacionMutation();
+
+  const handleActualizarSeleccion = () => {
+    setRefetching(true);
+    actualizarSeleccion({
+      id_persona: id_usuario,
+      tipo: 2,
+      id_grupo: grupoId,
+    })
+      .unwrap()
+      .then((response: any) => {
+        console.log(response);
+
+        setRefreshing(true);
+        refetch().finally(() => {
+          setRefreshing(false);
+          setRefetching(false);
+        });
+      })
+      .catch((error: any) => {
+        setRefetching(false);
+        console.error("Error al enviar el Alerta:", error);
+      });
+    setGrupoId("");
+  };
 
   const [
     crearGrupo,
@@ -283,15 +319,21 @@ export default function GruposScreen() {
       <OpcionesModal
         modalVisible={modalVisibleOpcionesGrupo}
         setModalVisible={setModalVisibleOpcionesGrupo}
-        colorOpcion1="#2222ff"
-        opcion1Texto="Editar"
+        colorOpcion1="#009900"
+        opcion1Texto="Activar grupo"
         handleOpcion1={() => {
+          handleActualizarSeleccion();
+          setModalVisibleOpcionesGrupo(false);
+        }}
+        colorOpcion2="#2222ff"
+        opcion2Texto="Editar"
+        handleOpcion2={() => {
           setModalVisibleEditarGrupo(true);
           setModalVisibleOpcionesGrupo(false);
         }}
-        colorOpcion2="#ff2222"
-        opcion2Texto="Eliminar"
-        handleOpcion2={() => {
+        colorOpcion3="#ff2222"
+        opcion3Texto="Eliminar"
+        handleOpcion3={() => {
           handleEliminarGrupo();
           setModalVisibleOpcionesGrupo(false);
         }}
