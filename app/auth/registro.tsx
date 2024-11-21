@@ -2,10 +2,9 @@ import BotonPrincipal from "../../components/aplicacion/BotonPrincipal";
 import CardBlack from "../../components/aplicacion/CardBlack";
 import ImagenBackground from "../../components/aplicacion/ImagenBackground";
 import LogoVolver from "../../components/aplicacion/LogoVolver";
-import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Formik } from "formik";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -20,13 +19,23 @@ import * as Yup from "yup";
 import { useRouter } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
 import { RegistrarUsuario } from "../../services/api/auth";
+import { useListarComunasQuery } from "../../services/api";
+import GeneroDropdown from "../../components/aplicacion/registro/GeneroDropdown";
+import FechaNacimientoPicker from "../../components/aplicacion/registro/FechaNacimiento";
+import ComunaDropdown from "../../components/aplicacion/registro/ComunaDropdown";
 
 const RegisterSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Required"),
-  password: Yup.string().min(6, "Too Short!").required("Required"),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password"), undefined], "Passwords must match")
-    .required("Required"),
+  // run: Yup.string().required("Required"),
+  // correo: Yup.string().email("Correo invalido").required("Required"),
+  // contrasena: Yup.string()
+  //   .min(6, "Demasiado corta, debe ser minimo de 6 caracteres")
+  //   .required("Required"),
+  // repetirContrasena: Yup.string()
+  //   .oneOf([Yup.ref("contrasena"), undefined], "Las contraseñas no coinciden")
+  //   .required("Required"),
+  // fechaNacimiento: Yup.string().required("La fecha de nacimiento es requerida"),
+  // genero: Yup.string().required("El género es requerido"),
+  // fechaNacimiento: Yup.date().required("Fecha de nacimiento es requerida"),
 });
 
 export default function RegistroScreen() {
@@ -34,6 +43,14 @@ export default function RegistroScreen() {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+  const [isPressed, setIsPressed] = useState(false);
+
+  const {
+    data: dataComunas = [{}],
+    error: errorComunas,
+    isLoading: isLoadingComunas,
+    refetch,
+  } = useListarComunasQuery({});
 
   const siguienteAccion = () => {
     if (swiperRef.current) {
@@ -47,251 +64,315 @@ export default function RegistroScreen() {
     }
   };
 
-  const mutation = useMutation({
-    mutationFn: RegistrarUsuario,
-    mutationKey: ["register"],
-  });
+  const handleRegistrar = (datos: any) => {
+    console.log(datos);
+    // try {
+    // const response = await RegistrarUsuario({});
+    // await SecureStore.setItemAsync(
+    //   "perfil",
+    //   JSON.stringify(response.data.perfil)
+    // );
+    // await SecureStore.setItemAsync(
+    //   "persona",
+    //   JSON.stringify(response.data.persona)
+    // );
+    // dispatch(
+    //   loginAction({
+    //     perfil: response.data.perfil,
+    //     persona: response.data.persona,
+    //   })
+    // );
+    // router.push("/drawer/tabs/home");
+    // } catch (error) {
+    //   console.error("Error al iniciar sesión: ", error);
+    // }
+  };
+
+  const mutation = { status: "success" };
 
   return (
     <ImagenBackground>
       <StatusBar style="light" backgroundColor="black" />
       <ScrollView className="flex w-full">
-        <Swiper ref={swiperRef} loop={false} showsPagination={false}>
-          <View className="flex justify-center h-screen p-4 w-full">
-            <CardBlack>
-              <LogoVolver
-                titulo="Registro de usuario"
-                estilo_titulo="text-white text-2xl font-bold mb-4"
-                onPressBack={() => {
-                  router.push("/auth/iniciar-sesion");
-                }}
-              />
-              <Formik
-                initialValues={{
-                  email: "atom@gmail.com",
-                  password: "123456",
-                  confirmPassword: "123456",
-                }}
-                validationSchema={RegisterSchema}
-                onSubmit={(values) => {
-                  const data = {
-                    nombre: "Gabriel Alonso",
-                    apellido: "Olivares Opazo",
-                    correo: "gaboolivaresopazo@gmail.com",
-                    password: "Hola123$&",
-                    fecha_nacimiento: "2002-09-11",
-                    numero_telefono: "+56963462711",
-                    rut: "21.127.856-0",
-                    direccion: "Direccion de mi casa",
-                    id_comuna: "0uitcldou0fT6sADzScd",
-                    tipo_usuario: 1,
-                    id_genero: "TZfnq567GbsAj9VcCFqt",
-                    id_municipalidad: "jLk6tks6WFngFWQ1Zf8B",
-                  };
-                  mutation
-                    .mutateAsync(data)
-                    .then(() => {
-                      setMessage("Registration successful!");
-                      setMessageType("success");
-                      setTimeout(() => {
-                        setMessage("");
-                        router.push("/auth/iniciar-sesion");
-                      }, 2000);
-                    })
-                    .catch((error) => {
-                      setMessage(error?.response?.data?.message);
-                      setMessageType("error");
-                    });
-                }}
+        <Formik
+          initialValues={{
+            run: "12312-0",
+            nombres: "Juan",
+            apellidos: "Perez",
+            correo: "atom@gmail.com",
+            contrasena: "123456",
+            repetirContrasena: "123456",
+            comuna: "",
+            direccion: "",
+            celular: "",
+            fechaNacimiento: "",
+            genero: "",
+          }}
+          validationSchema={RegisterSchema}
+          onSubmit={handleRegistrar}
+        >
+          {({
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            values,
+            errors,
+            touched,
+            setFieldValue,
+          }) => (
+            <>
+              <Swiper
+                ref={swiperRef}
+                loop={false}
+                scrollEnabled={false}
+                showsPagination={false}
               >
-                {({
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
-                  values,
-                  errors,
-                  touched,
-                }) => (
-                  <View className="w-full">
-                    <TextInput
-                      className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
-                      placeholder="Email"
-                      onChangeText={handleChange("email")}
-                      onBlur={handleBlur("email")}
-                      value={values.email}
-                      keyboardType="email-address"
-                    />
-                    {errors.email && touched.email && (
-                      <Text className="text-red-500 mb-4">{errors.email}</Text>
-                    )}
+                <View className="flex justify-center h-screen p-4 w-full">
+                  <CardBlack estiloCard="min-h-[550px] flex-col justify-between">
+                    <View>
+                      <LogoVolver
+                        titulo="Registro de usuario"
+                        estilo_titulo="text-white text-2xl font-bold mb-4"
+                        onPressBack={() => {
+                          router.push("/auth/iniciar-sesion");
+                        }}
+                      />
+                      <TextInput
+                        className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
+                        placeholder="Run"
+                        onChangeText={handleChange("run")}
+                        onBlur={handleBlur("run")}
+                        value={values.run}
+                      />
+                      {errors.run && touched.run && (
+                        <Text className="text-red-500 mb-4">{errors.run}</Text>
+                      )}
 
-                    <TextInput
-                      className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
-                      placeholder="Password"
-                      onChangeText={handleChange("password")}
-                      onBlur={handleBlur("password")}
-                      value={values.password}
-                      secureTextEntry
-                    />
-                    {errors.password && touched.password && (
-                      <Text className="text-red-500 mb-4">
-                        {errors.password}
-                      </Text>
-                    )}
-
-                    <TextInput
-                      className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
-                      placeholder="Confirm Password"
-                      onChangeText={handleChange("confirmPassword")}
-                      onBlur={handleBlur("confirmPassword")}
-                      value={values.confirmPassword}
-                      secureTextEntry
-                    />
-                    {errors.confirmPassword && touched.confirmPassword && (
-                      <Text className="text-red-500 mb-4">
-                        {errors.confirmPassword}
-                      </Text>
-                    )}
-
-                    <TouchableOpacity
-                      className={`h-12 bg-purple-600 rounded-md justify-center items-center my-4 ${
-                        mutation.status === "pending" ? "opacity-50" : ""
-                      }`}
-                      onPress={() => {
-                        handleSubmit();
-                      }}
-                      disabled={mutation.status === "pending"}
-                    >
-                      {mutation.status === "pending" ? (
-                        <ActivityIndicator color="#fff" />
-                      ) : (
-                        <Text className="text-white font-bold text-lg">
-                          Registrarse
+                      <TextInput
+                        className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
+                        placeholder="Nombres"
+                        onChangeText={handleChange("nombres")}
+                        onBlur={handleBlur("nombres")}
+                        value={values.nombres}
+                      />
+                      {errors.nombres && touched.nombres && (
+                        <Text className="text-red-500 mb-4">
+                          {errors.nombres}
                         </Text>
                       )}
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </Formik>
-              <TextInput
-                className="bg-gray-200 my-2 mx-2 p-2 rounded text-center"
-                placeholder="Run"
-              />
-              <TextInput
-                className="bg-gray-200 my-2 mx-2 p-2 rounded text-center"
-                placeholder="Nombres"
-              />
-              <TextInput
-                className="bg-gray-200 my-2 mx-2 p-2 rounded text-center"
-                placeholder="Apellidos"
-              />
-              <TextInput
-                className="bg-gray-200 my-2 mx-2 p-2 rounded text-center"
-                placeholder="Correo electrónico"
-              />
-              <View className="flex flex-row items-center justify-center mt-4">
-                {/* Botón de ya tiene cuenta */}
-                <BotonPrincipal
-                  titulo="Ya tengo una cuenta"
-                  estilo_boton="flex-1 m-2 py-2"
-                  onPress={() => {
-                    router.push("/auth/iniciar-sesion");
-                  }}
-                ></BotonPrincipal>
-                {/* Botón siguiente */}
-                <BotonPrincipal
-                  titulo="Siguiente"
-                  estilo_boton="flex-1 m-2 py-2"
-                  onPress={siguienteAccion}
-                ></BotonPrincipal>
-              </View>
-            </CardBlack>
-          </View>
 
-          <View className="flex justify-center h-screen p-4 w-full">
-            <CardBlack>
-              <LogoVolver
-                titulo="Registro de usuario"
-                estilo_titulo="text-white text-2xl font-bold mb-4"
-                onPressBack={() => {
-                  router.push("/auth/iniciar-sesion");
-                }}
-              />
-              <TextInput
-                className="bg-gray-200 my-2 mx-2 p-2 rounded text-center"
-                placeholder="Comuna"
-              />
-              <TextInput
-                className="bg-gray-200 my-2 mx-2 p-2 rounded text-center"
-                placeholder="Dirección"
-              />
-              <TextInput
-                className="bg-gray-200 my-2 mx-2 p-2 rounded text-center"
-                placeholder="Celular"
-              />
-              <View className="flex flex-row items-center justify-center mb-4">
-                <TextInput
-                  className="bg-gray-200 my-2 mx-2 p-2 flex-1 rounded text-center"
-                  placeholder="Fecha de nacimiento >"
-                />
-                <TextInput
-                  className="bg-gray-200 my-2 mx-2 p-2 flex-1 rounded text-center"
-                  placeholder="Género >"
-                />
-              </View>
-              <View className="flex flex-row items-center justify-center">
-                {/* Botón anterior */}
-                <BotonPrincipal
-                  titulo="Anterior"
-                  estilo_boton="flex-1 m-2 py-2"
-                  onPress={anteriorAccion}
-                ></BotonPrincipal>
-                {/* Botón siguiente */}
-                <BotonPrincipal
-                  titulo="Siguiente"
-                  estilo_boton="flex-1 m-2 py-2"
-                  onPress={siguienteAccion}
-                ></BotonPrincipal>
-              </View>
-            </CardBlack>
-          </View>
+                      <TextInput
+                        className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
+                        placeholder="Apellidos"
+                        onChangeText={handleChange("apellidos")}
+                        onBlur={handleBlur("apellidos")}
+                        value={values.apellidos}
+                      />
+                      {errors.apellidos && touched.apellidos && (
+                        <Text className="text-red-500 mb-4">
+                          {errors.apellidos}
+                        </Text>
+                      )}
 
-          <View className="flex justify-center h-screen p-4 w-full">
-            <CardBlack>
-              <LogoVolver
-                titulo="Registro de usuario"
-                estilo_titulo="text-white text-2xl font-bold mb-4"
-                onPressBack={() => {
-                  router.push("/auth/iniciar-sesion");
-                }}
-              />
-              <TextInput
-                className="bg-gray-200 my-2 mx-2 p-2 rounded text-center"
-                placeholder="Contraseña"
-              />
-              <TextInput
-                className="bg-gray-200 my-2 mx-2 p-2 rounded text-center"
-                placeholder="Repetir contraseña"
-              />
-              <View className="flex flex-row items-center justify-center mt-4">
-                {/* Botón anterior */}
-                <BotonPrincipal
-                  titulo="Anterior"
-                  estilo_boton="flex-1 m-2 py-2"
-                  onPress={anteriorAccion}
-                ></BotonPrincipal>
-                {/* Botón crear cuenta */}
-                <BotonPrincipal
-                  titulo="Crear cuenta"
-                  estilo_boton="flex-1 m-2 py-2"
-                  onPress={() => {
-                    router.push("/auth/iniciar-sesion");
-                  }}
-                ></BotonPrincipal>
-              </View>
-            </CardBlack>
-          </View>
-        </Swiper>
+                      <TextInput
+                        className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
+                        placeholder="Correo electrónico"
+                        onChangeText={handleChange("email")}
+                        onBlur={handleBlur("email")}
+                        value={values.correo}
+                        keyboardType="email-address"
+                      />
+                      {errors.correo && touched.correo && (
+                        <Text className="text-red-500 mb-4">
+                          {errors.correo}
+                        </Text>
+                      )}
+
+                      <View className="flex flex-row items-center justify-center mt-4">
+                        {/* Botón de ya tiene cuenta */}
+                        <BotonPrincipal
+                          titulo="Ya tengo una cuenta"
+                          estilo_boton="flex-1 m-2 py-2"
+                          onPress={() => {
+                            router.push("/auth/iniciar-sesion");
+                          }}
+                        />
+                        {/* Botón siguiente */}
+                        <BotonPrincipal
+                          titulo="Siguiente"
+                          estilo_boton="flex-1 m-2 py-2"
+                          onPress={siguienteAccion}
+                        />
+                      </View>
+                    </View>
+                  </CardBlack>
+                </View>
+
+                <View className="flex justify-center h-screen p-4 w-full">
+                  <CardBlack estiloCard="min-h-[550px] flex-col justify-between">
+                    <View>
+                      <LogoVolver
+                        titulo="Registro de usuario"
+                        estilo_titulo="text-white text-2xl font-bold mb-4"
+                        onPressBack={() => {
+                          router.push("/auth/iniciar-sesion");
+                        }}
+                      />
+
+                      <ComunaDropdown
+                        value={values.comuna}
+                        onChange={(selectedValue: any) =>
+                          setFieldValue("comuna", selectedValue)
+                        }
+                        comunas={dataComunas}
+                      />
+                      {errors.comuna && touched.comuna && (
+                        <Text className="text-red-500 mb-4">
+                          {errors.comuna}
+                        </Text>
+                      )}
+
+                      <TextInput
+                        className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
+                        placeholder="Dirección"
+                        onChangeText={handleChange("direccion")}
+                        onBlur={handleBlur("direccion")}
+                        value={values.direccion}
+                      />
+                      {errors.direccion && touched.direccion && (
+                        <Text className="text-red-500 mb-4">
+                          {errors.direccion}
+                        </Text>
+                      )}
+
+                      <TextInput
+                        className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
+                        placeholder="Celular"
+                        onChangeText={handleChange("celular")}
+                        onBlur={handleBlur("celular")}
+                        value={values.celular}
+                      />
+                      {errors.celular && touched.celular && (
+                        <Text className="text-red-500 mb-4">
+                          {errors.celular}
+                        </Text>
+                      )}
+
+                      <View className="flex flex-row items-center justify-center w-full mb-4">
+                        <FechaNacimientoPicker
+                          value={values.fechaNacimiento}
+                          onChange={(selectedDate: Date) =>
+                            setFieldValue(
+                              "fechaNacimiento",
+                              selectedDate.toISOString()
+                            )
+                          }
+                        />
+                        {errors.fechaNacimiento && touched.fechaNacimiento && (
+                          <Text className="text-red-500 mb-4">
+                            {errors.fechaNacimiento}
+                          </Text>
+                        )}
+
+                        <GeneroDropdown
+                          value={values.genero}
+                          onChange={(selectedValue: any) =>
+                            setFieldValue("genero", selectedValue)
+                          }
+                        />
+                        {errors.genero && touched.genero && (
+                          <Text className="text-red-500 mb-4">
+                            {errors.genero}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    <View className="flex flex-row items-center justify-center">
+                      {/* Botón anterior */}
+                      <BotonPrincipal
+                        titulo="Anterior"
+                        estilo_boton="flex-1 m-2 py-2"
+                        onPress={anteriorAccion}
+                      />
+                      {/* Botón siguiente */}
+                      <BotonPrincipal
+                        titulo="Siguiente"
+                        estilo_boton="flex-1 m-2 py-2"
+                        onPress={siguienteAccion}
+                      />
+                    </View>
+                  </CardBlack>
+                </View>
+
+                <View className="flex justify-center h-screen p-4 w-full">
+                  <CardBlack estiloCard="min-h-[550px] flex-col justify-between">
+                    <View>
+                      <LogoVolver
+                        titulo="Registro de usuario"
+                        estilo_titulo="text-white text-2xl font-bold mb-4"
+                        onPressBack={() => {
+                          router.push("/auth/iniciar-sesion");
+                        }}
+                      />
+
+                      <TextInput
+                        className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
+                        placeholder="Contraseña"
+                        onChangeText={handleChange("contrasena")}
+                        onBlur={handleBlur("contrasena")}
+                        value={values.contrasena}
+                        secureTextEntry
+                      />
+                      {errors.contrasena && touched.contrasena && (
+                        <Text className="text-red-500 mb-4">
+                          {errors.contrasena}
+                        </Text>
+                      )}
+
+                      <TextInput
+                        className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
+                        placeholder="Repetir contraseña"
+                        onChangeText={handleChange("repetirContrasena")}
+                        onBlur={handleBlur("repetirContrasena")}
+                        value={values.repetirContrasena}
+                        secureTextEntry
+                      />
+                      {errors.repetirContrasena &&
+                        touched.repetirContrasena && (
+                          <Text className="text-red-500 mb-4">
+                            {errors.repetirContrasena}
+                          </Text>
+                        )}
+                    </View>
+                    <View className="flex flex-row items-center justify-center mt-4">
+                      {/* Botón anterior */}
+                      <BotonPrincipal
+                        titulo="Anterior"
+                        estilo_boton="flex-1 m-2 py-2"
+                        onPress={anteriorAccion}
+                      />
+                      <TouchableOpacity
+                        className={`flex flex-1 m-2 py-2 justify-center items-center bg-[#ff80b5] rounded-lg ${
+                          mutation.status === "pending" ? "opacity-50" : ""
+                        }`}
+                        onPress={() => {
+                          handleSubmit();
+                        }}
+                        disabled={mutation.status === "pending" || isPressed}
+                      >
+                        {mutation.status === "pending" || isPressed ? (
+                          <ActivityIndicator color="#fff" />
+                        ) : (
+                          <Text className="text-white">Crear cuenta</Text>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </CardBlack>
+                </View>
+              </Swiper>
+            </>
+          )}
+        </Formik>
       </ScrollView>
     </ImagenBackground>
   );
