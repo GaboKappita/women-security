@@ -3,7 +3,6 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
   TextInput,
@@ -16,7 +15,6 @@ import BotonSecundario from "../../components/aplicacion/BotonSecundario";
 import CardBlack from "../../components/aplicacion/CardBlack";
 import ImagenBackground from "../../components/aplicacion/ImagenBackground";
 import * as Yup from "yup";
-import { useMutation } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { IniciarSesion } from "../../services/api/auth";
 import { loginAction } from "../redux/authSlice";
