@@ -1,10 +1,11 @@
 import { router, usePathname } from "expo-router";
 import { Drawer } from "expo-router/drawer";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, Text, Image } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { Ionicons } from "@expo/vector-icons";
+import { logoutAction } from "../redux/authSlice";
 
 export default function DrawerLayout() {
   const pathname = usePathname();
@@ -50,6 +51,7 @@ export default function DrawerLayout() {
 }
 
 function CustomDrawerContent({ navigation }: any) {
+  const dispatch = useDispatch();
   const pathname = usePathname();
   const { perfil, persona } = useSelector((state: RootState) => state.auth);
   const imagen_usuario = perfil.imagen_usuario;
@@ -295,8 +297,11 @@ function CustomDrawerContent({ navigation }: any) {
           )}
           label={"Cerrar sesión"}
           onPress={() => {
-            // navigation.navigate("iniciar-sesion");
-            router.push("/auth/iniciar-sesion");
+            // Despachar el logoutAction para cerrar la sesión
+            dispatch(logoutAction());
+
+            // Redirigir al usuario a la pantalla de inicio de sesión
+            router.replace("/auth/iniciar-sesion");
           }}
         />
       </View>

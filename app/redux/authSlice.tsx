@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import * as SecureStore from "expo-secure-store";
+
 interface UserState {
   isAuthenticated: boolean;
   persona: any | null;
@@ -24,6 +26,8 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
     },
     logoutAction: (state) => {
+      SecureStore.deleteItemAsync("perfil");
+      SecureStore.deleteItemAsync("persona");
       state.perfil = null;
       state.persona = null;
       state.isAuthenticated = false;

@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { IniciarSesion } from "../../services/api/auth";
 import { loginAction } from "../redux/authSlice";
 import { Formik } from "formik";
+import * as SecureStore from "expo-secure-store";
 
 const LoginSchema = Yup.object().shape({
   correo: Yup.string().email("Correo invalido").required("Required"),
@@ -43,6 +44,15 @@ export default function IniciarSesionScreen() {
   const handleSubmit = async () => {
     try {
       const response = await IniciarSesion({ correo, contrasena });
+      await SecureStore.setItemAsync(
+        "perfil",
+        JSON.stringify(response.data.perfil)
+      );
+      await SecureStore.setItemAsync(
+        "persona",
+        JSON.stringify(response.data.persona)
+      );
+
       dispatch(
         loginAction({
           perfil: response.data.perfil,

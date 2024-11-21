@@ -294,8 +294,6 @@ export default function HomeScreen() {
             })
           ) as AlertasUbicacion;
 
-          console.log(filtradas);
-
           setAlertasUbicacion(filtradas);
         }
       }
