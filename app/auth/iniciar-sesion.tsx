@@ -139,13 +139,13 @@ export default function IniciarSesionScreen() {
               )}
             </Formik>
             {/* Botón de olvido contraseña */}
-            <BotonSecundario
+            {/* <BotonSecundario
               titulo="¿Olvidaste tu contraseña?"
               estilo_boton="my-2 mx-2 py-2"
               onPress={() => {
                 router.push("/auth/recuperar");
               }}
-            ></BotonSecundario>
+            /> */}
             <View className="flex flex-row items-center justify-center">
               <Text className="text-white">¿No tienes cuenta?</Text>
               {/* Botón de crear cuenta */}

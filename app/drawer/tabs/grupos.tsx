@@ -234,7 +234,7 @@ export default function GruposScreen() {
     >
       <StatusBar style="light" backgroundColor="black" />
       <View className="bg-white shadow shadow-black rounded p-4 mb-4">
-        <View className="flex flex-row justify-center items-center w-full">
+        <View className="flex flex-row items-center w-full">
           <View className="w-16 h-16 bg-white mr-4 border-black border-2 rounded-full flex items-center justify-center overflow-hidden">
             <Image
               className="w-full h-full"
@@ -249,7 +249,7 @@ export default function GruposScreen() {
             <Text className="text-black text-lg flex">
               {persona.nombre} {persona.apellido}
             </Text>
-            <Text className="text-black text-base">
+            <Text className="text-gray-500 text-sm">
               {persona.numero_telefono}
             </Text>
           </View>

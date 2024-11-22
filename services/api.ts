@@ -152,6 +152,47 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: [],
     }),
+    listarDatosUsuario: builder.query({
+      query: ({ uid }) => {
+        const params = { uid };
+        return {
+          url: "user",
+          params,
+        };
+      },
+      keepUnusedDataFor: 0,
+      providesTags: [],
+    }),
+    editarUsuario: builder.mutation({
+      query: ({
+        uid,
+        nombre,
+        apellido,
+        numero_telefono,
+        direccion,
+        correo,
+        fecha_nacimiento,
+        imagen_usuario,
+        nombre_usuario,
+        password,
+      }) => ({
+        url: "update-profile",
+        method: "PUT",
+        body: {
+          uid,
+          ...(nombre && { nombre }),
+          ...(apellido && { apellido }),
+          ...(numero_telefono && { numero_telefono }),
+          ...(direccion && { direccion }),
+          ...(correo && { correo }),
+          ...(fecha_nacimiento && { fecha_nacimiento }),
+          ...(imagen_usuario && { imagen_usuario }),
+          ...(nombre_usuario && { nombre_usuario }),
+          ...(password && { password }),
+        },
+      }),
+      invalidatesTags: [],
+    }),
     generarAlerta: builder.mutation({
       query: ({ id_usuario, latitud, longitud, id_gravedad, mensaje }) => ({
         url: "guardar-ubicacion",
@@ -321,6 +362,8 @@ export const {
   useListarMensajesQuery,
   useListarUbicacionSeleccionQuery,
   useActualizarUbicacionMutation,
+  useListarDatosUsuarioQuery,
+  useEditarUsuarioMutation,
   useGenerarAlertaMutation,
   useGuardarContactoMutation,
   useEliminarContactoMutation,
@@ -335,3 +378,4 @@ export const {
   useEliminarClaveMutation,
   useEditarClaveMutation,
 } = apiSlice;
+ 

@@ -220,7 +220,7 @@ function CustomDrawerContent({ navigation }: any) {
             // router.push("/(drawer)/(modulos)/reportes");
           }}
         /> */}
-        {/* <DrawerItem
+        <DrawerItem
           label={"Noticias"}
           icon={({ color, size }) => (
             <Ionicons
@@ -242,7 +242,7 @@ function CustomDrawerContent({ navigation }: any) {
             navigation.navigate("noticias");
             // router.push("/(drawer)/(modulos)/noticias");
           }}
-        /> */}
+        />
         <DrawerItem
           label={"Ayuda"}
           icon={({ color, size }) => (

@@ -21,8 +21,9 @@ import {
   useGenerarAlertaMutation,
   useListarUbicacionSeleccionQuery,
 } from "../../../services/api";
-import { onValue, ref, set } from "firebase/database";
+import { onValue, push, ref, set } from "firebase/database";
 import { database } from "../../../firebaseConfig";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 interface LocationCoords {
   latitude: number;
@@ -228,7 +229,7 @@ export default function HomeScreen() {
     mensaje: string
   ) => {
     const ubicacionRef = ref(database, `alertas/${id_usuario}`);
-    set(ubicacionRef, {
+    push(ubicacionRef, {
       nombre: persona.nombre,
       apellido: persona.apellido,
       latitud: ubicacion.coords.latitude,
@@ -271,31 +272,40 @@ export default function HomeScreen() {
     const unsubscribe = onValue(locationsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        if (dataGrupoSeleccionado.miembros.length === 0) {
-          setAlertasUbicacion(null);
-        } else {
-          const miembros = dataGrupoSeleccionado?.miembros.map(
-            (miembro: any) => miembro.id_usuario
-          );
+        const ahora = Date.now();
+        const miembrosUsuario =
+          dataGrupoSeleccionado?.miembros?.length > 0
+            ? [
+                ...dataGrupoSeleccionado.miembros.map(
+                  (miembro: any) => miembro.id_usuario
+                ),
+                id_usuario,
+              ]
+            : [id_usuario];
 
-          const miembrosUsuario = [...miembros, id_usuario];
+        // Recorremos las alertas por usuario
+        const filtradas = Object.entries(data).reduce(
+          (acumulador, [id_usuario, alertas]) => {
+            if (miembrosUsuario.includes(id_usuario)) {
+              // Filtrar las alertas recientes (últimas 24 horas) para cada usuario
+              const alertasRecientes = Object.entries(alertas as any)
+                .filter(
+                  ([id_alerta, alerta]: [string, any]) =>
+                    ahora - alerta.timestamp <= 24 * 60 * 60 * 1000
+                )
+                .map(([id_alerta, alerta]) => ({
+                  id_alerta,
+                  ...(alerta as any),
+                }));
 
-          // Obtener la hora actual en milisegundos
-          const ahora = Date.now();
+              return [...acumulador, ...alertasRecientes];
+            }
+            return acumulador;
+          },
+          [] as any[]
+        );
 
-          // Filtrar las alertas que son de los miembros seleccionados y que tengan un timestamp en las últimas 24 horas
-          const filtradas = Object.fromEntries(
-            Object.entries(data).filter(([id, alerta]: [string, any]) => {
-              const esMiembro = miembrosUsuario.includes(id);
-              // 24 horas en milisegundos
-              const esReciente =
-                ahora - alerta.timestamp <= 24 * 60 * 60 * 1000;
-              return esMiembro && esReciente;
-            })
-          ) as AlertasUbicacion;
-
-          setAlertasUbicacion(filtradas);
-        }
+        setAlertasUbicacion(filtradas as any);
       }
     });
 
@@ -316,6 +326,19 @@ export default function HomeScreen() {
     }
   };
 
+  const handleLocateUser = async () => {
+    const userLocation = await Location.getCurrentPositionAsync({});
+    mapRef.current?.animateToRegion(
+      {
+        latitude: userLocation.coords.latitude,
+        longitude: userLocation.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      },
+      1000
+    );
+  };
+
   return (
     <View style={{ flex: 1 }}>
       {location ? (
@@ -323,9 +346,9 @@ export default function HomeScreen() {
           <MapView
             ref={mapRef}
             style={styles.map}
-            provider={PROVIDER_GOOGLE}
             showsUserLocation
             showsMyLocationButton
+            customMapStyle={[]}
             initialRegion={location}
           >
             {grupoUbicacion &&
@@ -396,8 +419,25 @@ export default function HomeScreen() {
                 />
               ))}
           </MapView>
-          <TouchableOpacity style={styles.fab} onPress={handlePress}>
-            <Text style={styles.fabText}>+</Text>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={styles.fab2}
+            onPress={handleLocateUser}
+          >
+            <MaterialCommunityIcons
+              name="crosshairs-gps"
+              size={28}
+              color={"white"}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={styles.fab}
+            onPress={handlePress}
+          >
+            <MaterialCommunityIcons name="plus" size={28} color={"white"} />
           </TouchableOpacity>
 
           {grupoUbicacion && (
@@ -544,9 +584,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  fabText: {
-    color: "#fff",
-    fontSize: 24,
+  fab2: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    backgroundColor: "#ff80b5",
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalOverlay: {
     flex: 1,
