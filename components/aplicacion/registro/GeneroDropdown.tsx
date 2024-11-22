@@ -7,19 +7,30 @@ import {
   View,
 } from "react-native";
 
-const GeneroDropdown = ({ value, onChange }: any) => {
+const GeneroDropdown = ({
+  value,
+  onChange,
+  generos,
+  error,
+  touched,
+  isLoading,
+}: any) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const opciones = ["Masculino", "Femenino", "Otro"];
+  const selectedGenero = generos.find((genero: any) => genero.id === value);
 
   return (
     <>
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => setModalVisible(true)}
-        className="h-12 border border-gray-300 rounded-md px-4 flex-1 justify-center bg-white"
+        className={`${
+          error && touched
+            ? "border-[3px] border-red-500"
+            : "border border-gray-300"
+        } h-12 rounded-md px-4 flex-1 justify-center bg-white`}
       >
         <Text className={`${!value ? "text-gray-500" : "text-black"}`}>
-          {value || "Género"}
+          {selectedGenero ? selectedGenero.descripcion : "Género"}
         </Text>
       </TouchableOpacity>
 
@@ -27,18 +38,35 @@ const GeneroDropdown = ({ value, onChange }: any) => {
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View className="flex-1 bg-black/50 justify-center items-center">
             <View className="w-10/12 p-5 bg-white rounded-xl shadow-lg">
-              {opciones.map((opcion) => (
-                <TouchableOpacity
-                  key={opcion}
-                  className="p-2"
-                  onPress={() => {
-                    onChange(opcion);
-                    setModalVisible(false);
-                  }}
-                >
-                  <Text className="text-lg">{opcion}</Text>
-                </TouchableOpacity>
-              ))}
+              {isLoading ? (
+                <View className="p-2">
+                  <Text className="text-lg">Cargando géneros...</Text>
+                </View>
+              ) : generos.length === 0 ? (
+                <View className="p-2">
+                  <Text className="text-lg">No hay géneros disponibles</Text>
+                </View>
+              ) : (
+                generos
+                  .slice()
+                  .sort((a: any, b: any) => {
+                    const nombreA = a.descripcion?.toString() || "";
+                    const nombreB = b.descripcion?.toString() || "";
+                    return nombreA.localeCompare(nombreB);
+                  })
+                  .map((genero: any, index: number) => (
+                    <TouchableOpacity
+                      key={index}
+                      className="p-2"
+                      onPress={() => {
+                        onChange(genero.id);
+                        setModalVisible(false);
+                      }}
+                    >
+                      <Text className="text-lg">{genero.descripcion}</Text>
+                    </TouchableOpacity>
+                  ))
+              )}
             </View>
           </View>
         </TouchableWithoutFeedback>

@@ -99,7 +99,6 @@ export default function IniciarSesionScreen() {
                     placeholder="Correo electrónico"
                     onChangeText={setCorreo}
                     onBlur={handleBlur("correo")}
-                    value={values.correo}
                     keyboardType="email-address"
                   />
                   {errors.correo && touched.correo && (
@@ -111,7 +110,6 @@ export default function IniciarSesionScreen() {
                     placeholder="Contraseña"
                     onChangeText={setContrasena}
                     onBlur={handleBlur("contrasena")}
-                    value={values.contrasena}
                     secureTextEntry
                   />
                   {errors.contrasena && touched.contrasena && (

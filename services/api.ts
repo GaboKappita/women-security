@@ -21,6 +21,17 @@ export const apiSlice = createApi({
       keepUnusedDataFor: 0,
       providesTags: [],
     }),
+    listarGeneros: builder.query({
+      query: () => {
+        const params = {};
+        return {
+          url: "generos",
+          params,
+        };
+      },
+      keepUnusedDataFor: 0,
+      providesTags: [],
+    }),
     listarGravedad: builder.query({
       query: () => {
         const params = {};
@@ -299,6 +310,7 @@ export const apiSlice = createApi({
 
 export const {
   useListarComunasQuery,
+  useListarGenerosQuery,
   useListarGravedadQuery,
   useListarClavesQuery,
   useListarAlertasQuery,

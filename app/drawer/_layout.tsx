@@ -6,6 +6,7 @@ import { RootState } from "../redux/store";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import { logoutAction } from "../redux/authSlice";
+import { Alert } from "react-native";
 
 export default function DrawerLayout() {
   const pathname = usePathname();
@@ -196,7 +197,7 @@ function CustomDrawerContent({ navigation }: any) {
             // router.push("/(drawer)/(modulos)/mis-alertas");
           }}
         />
-        <DrawerItem
+        {/* <DrawerItem
           label={"Reportes"}
           icon={({ color, size }) => (
             <Ionicons
@@ -218,8 +219,8 @@ function CustomDrawerContent({ navigation }: any) {
             navigation.navigate("reportes");
             // router.push("/(drawer)/(modulos)/reportes");
           }}
-        />
-        <DrawerItem
+        /> */}
+        {/* <DrawerItem
           label={"Noticias"}
           icon={({ color, size }) => (
             <Ionicons
@@ -241,7 +242,7 @@ function CustomDrawerContent({ navigation }: any) {
             navigation.navigate("noticias");
             // router.push("/(drawer)/(modulos)/noticias");
           }}
-        />
+        /> */}
         <DrawerItem
           label={"Ayuda"}
           icon={({ color, size }) => (
@@ -267,8 +268,8 @@ function CustomDrawerContent({ navigation }: any) {
       </DrawerContentScrollView>
 
       <View className="w-10/12 h-[1px] bg-black opacity-40 m-auto"></View>
-      <View className="py-4">
-        <DrawerItem
+      <View className="py-4 px-4">
+        {/* <DrawerItem
           label={"Configuración"}
           icon={({ color, size }) => (
             <Ionicons
@@ -290,18 +291,37 @@ function CustomDrawerContent({ navigation }: any) {
             navigation.navigate("configuracion");
             // router.push("/(drawer)/(modulos)/configuracion");
           }}
-        />
+        /> */}
         <DrawerItem
           icon={({ color, size }) => (
-            <Ionicons name="log-out" size={24} color={color} />
+            <Ionicons name="log-out" size={24} color={"red"} />
           )}
           label={"Cerrar sesión"}
+          labelStyle={[
+            {
+              color: "red",
+            },
+          ]}
           onPress={() => {
-            // Despachar el logoutAction para cerrar la sesión
-            dispatch(logoutAction());
-
-            // Redirigir al usuario a la pantalla de inicio de sesión
-            router.replace("/auth/iniciar-sesion");
+            // Muestra una alerta de confirmación antes de cerrar sesión
+            Alert.alert(
+              "Cerrar sesión",
+              "¿Estás seguro de que quieres cerrar sesión?",
+              [
+                {
+                  text: "Cancelar",
+                  style: "cancel",
+                },
+                {
+                  text: "Aceptar",
+                  onPress: () => {
+                    dispatch(logoutAction());
+                    router.replace("/auth/iniciar-sesion");
+                  },
+                },
+              ],
+              { cancelable: true }
+            );
           }}
         />
       </View>

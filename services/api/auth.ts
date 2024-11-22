@@ -43,7 +43,6 @@ const RegistrarUsuario = async ({
   direccion,
   id_comuna,
   id_genero,
-  id_municipalidad,
 }: any) => {
   try {
     const response = await axios.post(`${API_URL}register`, {
@@ -54,11 +53,10 @@ const RegistrarUsuario = async ({
       fecha_nacimiento: fecha_nacimiento,
       numero_telefono: telefono,
       rut: rut,
-      direccion: "",
-      id_comuna: "oOwwYi6Vx3VdeGeXr0fp",
+      direccion: direccion,
+      id_comuna: id_comuna,
       tipo_usuario: 1,
-      id_genero: "TZfnq567GbsAj9VcCFqt",
-      id_municipalidad: "jLk6tks6WFngFWQ1Zf8B",
+      id_genero: id_genero,
     });
     console.log(response.data);
     return response.data;
