@@ -72,6 +72,8 @@ export default function GruposScreen() {
   ] = useActualizarUbicacionMutation();
 
   const handleActualizarSeleccion = () => {
+    console.log(grupoId, nombreGrupo);
+
     setRefetching(true);
     actualizarSeleccion({
       id_persona: id_usuario,
@@ -80,13 +82,8 @@ export default function GruposScreen() {
     })
       .unwrap()
       .then((response: any) => {
-        console.log(response);
-
         setRefreshing(true);
-        refetch().finally(() => {
-          setRefreshing(false);
-          setRefetching(false);
-        });
+        onRefresh();
       })
       .catch((error: any) => {
         setRefetching(false);
@@ -220,10 +217,12 @@ export default function GruposScreen() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    refetch().finally(() => {
+    refetch();
+    refetchGrupoSeleccionado().finally(() => {
       setRefreshing(false);
+      setRefetching(false);
     });
-  }, [refetch]);
+  }, [refetch, refetchGrupoSeleccionado]);
 
   return (
     <ScrollView
@@ -417,9 +416,15 @@ export default function GruposScreen() {
       <OpcionesModal
         modalVisible={modalVisibleOpcionesMiembroGrupo}
         setModalVisible={setModalVisibleOpcionesMiembroGrupo}
-        colorOpcion1="#ff2222"
-        opcion1Texto="Salirse del grupo"
+        colorOpcion1="#009900"
+        opcion1Texto="Activar grupo"
         handleOpcion1={() => {
+          handleActualizarSeleccion();
+          setModalVisibleOpcionesGrupo(false);
+        }}
+        colorOpcion2="#ff2222"
+        opcion2Texto="Salirse del grupo"
+        handleOpcion2={() => {
           handleSalirseGrupo();
           setModalVisibleOpcionesMiembroGrupo(false);
         }}

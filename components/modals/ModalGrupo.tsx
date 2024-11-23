@@ -92,7 +92,7 @@ const GrupoModal = ({
     invitarPersona({
       id_grupo: grupoId,
       celular: celularPersona,
-      id_usuario_creador: id_usuario,
+      id_usuario_emisor: id_usuario,
     })
       .unwrap()
       .then((response: any) => {
