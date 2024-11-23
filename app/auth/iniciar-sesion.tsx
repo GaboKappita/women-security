@@ -22,17 +22,15 @@ import { Formik } from "formik";
 import * as SecureStore from "expo-secure-store";
 
 const LoginSchema = Yup.object().shape({
-  correo: Yup.string().email("Correo invalido").required("Required"),
-  contrasena: Yup.string()
-    .min(6, "Contraseña demasiada corta")
-    .required("Required"),
+  correo: Yup.string()
+    .email("Correo invalido")
+    .required("El correo es obligatorio"),
+  contrasena: Yup.string().required("La contraseña es obligatoria"),
 });
 
 export default function IniciarSesionScreen() {
   const dispatch = useDispatch();
   const user = useSelector((state: any) => state.auth.user);
-  const [correo, setCorreo] = useState("gaboolivaresopazo@gmail.com");
-  const [contrasena, setContrasena] = useState("Hola123$&");
   const [isPressed, setIsPressed] = useState(false);
 
   useEffect(() => {
@@ -41,9 +39,16 @@ export default function IniciarSesionScreen() {
     }
   }, []);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (datos: any) => {
+    console.log(datos);
+
+    setIsPressed(true);
+    const data = {
+      correo: datos.correo,
+      contrasena: datos.contrasena,
+    };
     try {
-      const response = await IniciarSesion({ correo, contrasena });
+      const response = await IniciarSesion(data);
       await SecureStore.setItemAsync(
         "perfil",
         JSON.stringify(response.data.perfil)
@@ -61,6 +66,7 @@ export default function IniciarSesionScreen() {
       );
       router.push("/drawer/tabs/home");
     } catch (error) {
+      setIsPressed(false);
       console.error("Error al iniciar sesión: ", error);
     }
   };
@@ -79,8 +85,8 @@ export default function IniciarSesionScreen() {
             />
             <Formik
               initialValues={{
-                correo: "gaboolivaresopazo@gmail.com",
-                contrasena: "Hola123$&",
+                correo: "",
+                contrasena: "",
               }}
               validationSchema={LoginSchema}
               onSubmit={handleSubmit}
@@ -97,7 +103,7 @@ export default function IniciarSesionScreen() {
                   <TextInput
                     className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
                     placeholder="Correo electrónico"
-                    onChangeText={setCorreo}
+                    onChangeText={handleChange("correo")}
                     onBlur={handleBlur("correo")}
                     keyboardType="email-address"
                   />
@@ -108,7 +114,7 @@ export default function IniciarSesionScreen() {
                   <TextInput
                     className="h-12 border border-gray-300 rounded-md px-4 mb-4 bg-white"
                     placeholder="Contraseña"
-                    onChangeText={setContrasena}
+                    onChangeText={handleChange("contrasena")}
                     onBlur={handleBlur("contrasena")}
                     secureTextEntry
                   />
@@ -122,7 +128,6 @@ export default function IniciarSesionScreen() {
                     activeOpacity={0.8}
                     className={`h-12 bg-[#ff80b5] rounded-md justify-center items-center my-4 `}
                     onPress={() => {
-                      setIsPressed(true);
                       handleSubmit();
                     }}
                     disabled={mutation.status === "pending" || isPressed}

@@ -62,6 +62,7 @@ interface GrupoUbicacion {
 export default function HomeScreen() {
   // const { location, setLocation, locationEnabled, setLocationEnabled } =
   //   useLocation();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const { perfil, persona } = useSelector((state: RootState) => state.auth);
   const [locationFirebase, setLocationFirebase] =
@@ -192,15 +193,15 @@ export default function HomeScreen() {
           mapRef.current.animateToRegion(newLocation, 1000);
         }
 
-        // Configurar envío periódico de ubicación a Firebase
-        const intervalId = setInterval(async () => {
+        intervalRef.current = setInterval(async () => {
           const updatedLocation = await Location.getCurrentPositionAsync({});
           setLocationFirebase(updatedLocation);
           enviarUbicacionAFirebase(updatedLocation);
         }, 15000);
 
-        // Limpieza: detener intervalo al desmontar
-        return () => clearInterval(intervalId);
+        return () => {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+        };
       } catch (error) {
         Alert.alert("Error", "No se pudo obtener la ubicación.");
       }
