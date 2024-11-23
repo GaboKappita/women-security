@@ -107,8 +107,6 @@ export default function PerfilScreen() {
   };
 
   const handleCambioContrasena = () => {
-    console.log(password !== perfil.password);
-
     if (password !== perfil.password) {
       Alert.alert(
         "Error",

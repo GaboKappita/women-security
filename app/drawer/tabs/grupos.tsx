@@ -40,6 +40,10 @@ export default function GruposScreen() {
     modalVisibleOpcionesMiembroGrupo,
     setModalVisibleOpcionesMiembroGrupo,
   ] = useState(false);
+  const [
+    modalVisibleOpcionesMiembroGrupoSeleccionado,
+    setModalVisibleOpcionesMiembroGrupoSeleccionado,
+  ] = useState(false);
   const [grupoCompleto, setGrupoCompleto] = useState<any>(null);
   const [grupoId, setGrupoId] = useState("");
   const [nombreGrupo, setNombreGrupo] = useState("");
@@ -72,8 +76,6 @@ export default function GruposScreen() {
   ] = useActualizarUbicacionMutation();
 
   const handleActualizarSeleccion = () => {
-    console.log(grupoId, nombreGrupo);
-
     setRefetching(true);
     actualizarSeleccion({
       id_persona: id_usuario,
@@ -306,6 +308,37 @@ export default function GruposScreen() {
                     {dataGrupoSeleccionado.grupo.descripcion}
                   </Text>
                 </View>
+                {dataGrupoSeleccionado.grupo.id_creador_grupo == id_usuario ? (
+                  <TouchableOpacity
+                    className="justify-center items-center h-10 w-10"
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      setGrupoId(dataGrupoSeleccionado.id_relacion);
+                      setNombreGrupo(dataGrupoSeleccionado.grupo.nombre_grupo);
+                      setDescripcionGrupo(
+                        dataGrupoSeleccionado.grupo.descripcion
+                      );
+                      setModalVisibleOpcionesGrupo(true);
+                    }}
+                  >
+                    <MaterialCommunityIcons name="dots-vertical" size={32} />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    className="justify-center items-center h-10 w-10"
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      setGrupoId(dataGrupoSeleccionado.id_relacion);
+                      setNombreGrupo(dataGrupoSeleccionado.grupo.nombre_grupo);
+                      setDescripcionGrupo(
+                        dataGrupoSeleccionado.grupo.descripcion
+                      );
+                      setModalVisibleOpcionesMiembroGrupoSeleccionado(true);
+                    }}
+                  >
+                    <MaterialCommunityIcons name="dots-vertical" size={32} />
+                  </TouchableOpacity>
+                )}
               </TouchableOpacity>
             </View>
           )}
@@ -420,13 +453,25 @@ export default function GruposScreen() {
         opcion1Texto="Activar grupo"
         handleOpcion1={() => {
           handleActualizarSeleccion();
-          setModalVisibleOpcionesGrupo(false);
+          setModalVisibleOpcionesMiembroGrupo(false);
         }}
         colorOpcion2="#ff2222"
         opcion2Texto="Salirse del grupo"
         handleOpcion2={() => {
           handleSalirseGrupo();
           setModalVisibleOpcionesMiembroGrupo(false);
+        }}
+      />
+
+      {/* Opciones miembro grupo seleccionado */}
+      <OpcionesModal
+        modalVisible={modalVisibleOpcionesMiembroGrupoSeleccionado}
+        setModalVisible={setModalVisibleOpcionesMiembroGrupoSeleccionado}
+        colorOpcion1="#ff2222"
+        opcion1Texto="Salirse del grupo"
+        handleOpcion1={() => {
+          handleSalirseGrupo();
+          setModalVisibleOpcionesMiembroGrupoSeleccionado(false);
         }}
       />
 
