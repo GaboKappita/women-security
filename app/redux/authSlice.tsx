@@ -32,8 +32,22 @@ const authSlice = createSlice({
       state.persona = null;
       state.isAuthenticated = false;
     },
+    updateProfileAction: (
+      state,
+      action: PayloadAction<{ perfil?: any; persona?: any }>
+    ) => {
+      if (action.payload.perfil) {
+        state.perfil = { ...state.perfil, ...action.payload.perfil };
+        SecureStore.setItemAsync("perfil", JSON.stringify(state.perfil));
+      }
+      if (action.payload.persona) {
+        state.persona = { ...state.persona, ...action.payload.persona };
+        SecureStore.setItemAsync("persona", JSON.stringify(state.persona));
+      }
+    },
   },
 });
 
-export const { loginAction, logoutAction } = authSlice.actions; // Exporta las acciones
-export default authSlice.reducer; // Exporta el reducer
+export const { loginAction, logoutAction, updateProfileAction } =
+  authSlice.actions;
+export default authSlice.reducer;

@@ -174,7 +174,7 @@ export default function RegistroScreen() {
             correo: "juan@gmail.com",
             contrasena: "123456",
             repetirContrasena: "123456",
-            comuna: "0uitcldou0fT6sADzScd",
+            comuna: "oOwwYi6Vx3VdeGeXr0fp",
             direccion: "Calle Falsa 123",
             celular: "963462711",
             fechaNacimiento: "2002-09-11",

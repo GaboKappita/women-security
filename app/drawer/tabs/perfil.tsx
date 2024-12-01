@@ -7,7 +7,6 @@ import {
   Modal,
   TouchableOpacity,
   Image,
-  Button,
   ActivityIndicator,
   Alert,
 } from "react-native";
@@ -15,17 +14,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useState } from "react";
 import FechaNacimientoPicker from "../../../components/aplicacion/registro/FechaNacimiento";
-import {
-  useEditarUsuarioMutation,
-  useListarDatosUsuarioQuery,
-} from "../../../services/api";
-import * as SecureStore from "expo-secure-store";
-import { loginAction } from "../../redux/authSlice";
+import { useEditarUsuarioMutation } from "../../../services/api";
+import { updateProfileAction } from "../../redux/authSlice";
 
 export default function PerfilScreen() {
+  const { perfil, persona } = useSelector((state: RootState) => state.auth);
+  if (!persona || !perfil) {
+    return <ActivityIndicator size="large" color="#ff80b5" />;
+  }
+
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const { perfil, persona } = useSelector((state: RootState) => state.auth);
   const [nombre, setNombre] = useState(persona.nombre || "");
   const [apellido, setApellido] = useState(persona.apellido || "");
   const [numeroTelefono, setNumeroTelefono] = useState(
@@ -85,12 +84,11 @@ export default function PerfilScreen() {
         };
 
         dispatch(
-          loginAction({
+          updateProfileAction({
             perfil: perfil,
             persona: updatedPersona,
           })
         );
-        SecureStore.setItemAsync("persona", JSON.stringify(updatedPersona));
         setLoading(false);
 
         Alert.alert(
@@ -145,12 +143,11 @@ export default function PerfilScreen() {
         };
 
         dispatch(
-          loginAction({
+          updateProfileAction({
             perfil: updatedPerfil,
             persona: persona,
           })
         );
-        SecureStore.setItemAsync("perfil", JSON.stringify(updatedPerfil));
         setLoading(false);
 
         Alert.alert(
