@@ -35,10 +35,32 @@ export default function MisClavesScreen() {
   const [modalVisibleAgregar, setModalVisibleAgregar] = useState(false);
   const [modalVisibleEditar, setModalVisibleEditar] = useState(false);
   const [modalVisibleGravedades, setModalVisibleGravedades] = useState(false);
-  const [selectedGravedad, setSelectedGravedad] = useState<any>();
+  const [selectedGravedad, setSelectedGravedad] = useState<any>({});
   const [palabraClave, setPalabraClave] = useState("");
   const [idPalabraClave, setIdPalabraClave] = useState<any>();
   const [nuevaPalabraClave, setNuevaPalabraClave] = useState("");
+
+  const [errorPalabra, setErrorPalabra] = useState("");
+  const [errorGravedadPalabra, setErrorGravedadPalabra] = useState("");
+
+  // Función para validar el celular
+  const validarPalabra = (celular: string) => {
+    if (celular.length < 4) {
+      setErrorPalabra("La palabra debe ser de al menos 4 caracteres.");
+    } else if (celular.length > 21) {
+      setErrorPalabra("Trata de no excederte de los 20 caracteres.");
+    } else {
+      setErrorPalabra("");
+    }
+  };
+
+  // Función para validar el gravedad
+  const validarGravedad = () => {
+    if (Object.keys(selectedGravedad).length === 0) {
+      return "Selecciona un tipo de gravedad.";
+    }
+    return null;
+  };
 
   const id_usuario = persona.id_persona;
 
@@ -287,10 +309,16 @@ export default function MisClavesScreen() {
               <TextInput
                 className="px-4 py-3 text-base"
                 value={nuevaPalabraClave}
-                onChangeText={setNuevaPalabraClave}
+                onChangeText={(palabra) => {
+                  setNuevaPalabraClave(palabra);
+                  validarPalabra(palabra);
+                }}
                 placeholder="Escribe aqui..."
               />
             </View>
+            {errorPalabra && (
+              <Text className="text-red-500 mb-4 px-2">{errorPalabra}</Text>
+            )}
 
             <Text className="mb-4 font-bold">Tipo de gravedad</Text>
             {!isLoadingGravedad && (
@@ -314,17 +342,32 @@ export default function MisClavesScreen() {
                 </TouchableWithoutFeedback>
               </View>
             )}
+            {errorGravedadPalabra && (
+              <Text className="text-red-500 mb-4 px-2">
+                {errorGravedadPalabra}
+              </Text>
+            )}
 
             <View className="flex-row gap-x-4 justify-between">
               <TouchableOpacity
-                onPress={() => setModalVisibleAgregar(false)}
+                onPress={() => {
+                  setModalVisibleAgregar(false);
+                  setErrorPalabra("");
+                  setSelectedGravedad({});
+                }}
                 className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
               >
                 <Text className="text-center text-gray-700">Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  handleAgregarClave();
+                  const error = validarGravedad();
+                  if (error) {
+                    setErrorGravedadPalabra(error);
+                  } else {
+                    setErrorGravedadPalabra("");
+                    handleAgregarClave();
+                  }
                 }}
                 className="bg-green-500 p-2 rounded-md flex-1"
               >
@@ -352,10 +395,16 @@ export default function MisClavesScreen() {
               <TextInput
                 className="px-4 py-3 text-base"
                 value={palabraClave}
-                onChangeText={setPalabraClave}
+                onChangeText={(palabra) => {
+                  setPalabraClave(palabra);
+                  validarPalabra(palabra);
+                }}
                 placeholder="Escribe aqui..."
               />
             </View>
+            {errorPalabra && (
+              <Text className="text-red-500 mb-4 px-2">{errorPalabra}</Text>
+            )}
 
             <Text className="mb-4 font-bold">Tipo de gravedad</Text>
             {!isLoadingGravedad && (
@@ -374,6 +423,7 @@ export default function MisClavesScreen() {
               <TouchableOpacity
                 onPress={() => {
                   setModalVisibleEditar(false);
+                  setErrorPalabra("");
                   setSelectedGravedad({});
                 }}
                 className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
@@ -418,6 +468,7 @@ export default function MisClavesScreen() {
                     className="p-4 border-b border-gray-300"
                     onPress={() => {
                       setSelectedGravedad(item);
+                      setErrorGravedadPalabra("");
                       setModalVisibleGravedades(false);
                     }}
                   >
@@ -428,7 +479,9 @@ export default function MisClavesScreen() {
             )}
 
             <TouchableOpacity
-              onPress={() => setModalVisibleGravedades(false)}
+              onPress={() => {
+                setModalVisibleGravedades(false);
+              }}
               className="bg-gray-300 p-2 rounded-md"
             >
               <Text className="text-center text-gray-700">Cancelar</Text>

@@ -43,8 +43,6 @@ export default function IniciarSesionScreen() {
   }, []);
 
   const handleSubmit = async (datos: any) => {
-    console.log(datos);
-
     setIsPressed(true);
     const data = {
       correo: datos.correo,

@@ -116,7 +116,6 @@ export default function HomeScreen() {
       .unwrap()
       .then((response: any) => {
         enviarAlertaAFirebase(userLocation, id_gravedad, gravedad, mensaje);
-        console.log(response);
       })
       .catch((error: any) => {
         console.error("Error al enviar el Alerta:", error);
@@ -129,7 +128,6 @@ export default function HomeScreen() {
 
     // Iniciar temporizador de 5 segundos
     timerRef.current = setTimeout(async () => {
-      console.log("Alerta generada por acoso/robo");
       // Ocultar el modal después de 5 segundos
       setModalVisible(false);
 
@@ -137,8 +135,6 @@ export default function HomeScreen() {
       try {
         const userLocation = await Location.getCurrentPositionAsync({});
         const { latitude, longitude } = userLocation.coords;
-
-        console.log(latitude, longitude);
 
         // Llamar a handleEnviarAlerta con la ubicación actual
         handleEnviarAlerta(latitude, longitude, userLocation);

@@ -28,8 +28,6 @@ export default function InvitacionesScreen() {
     refetch: refetchInvitaciones,
   } = useListarInvitacionesQuery({ id_usuario: id_usuario });
 
-  console.log(dataInvitaciones.invitaciones);
-
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     refetchInvitaciones().finally(() => setRefreshing(false));
@@ -52,8 +50,6 @@ export default function InvitacionesScreen() {
     })
       .unwrap()
       .then((response: any) => {
-        console.log(response);
-
         setRefreshing(true);
         refetchInvitaciones().finally(() => {
           setRefreshing(false);
@@ -74,8 +70,6 @@ export default function InvitacionesScreen() {
     })
       .unwrap()
       .then((response: any) => {
-        console.log(response);
-
         setRefreshing(true);
         refetchInvitaciones().finally(() => {
           setRefreshing(false);

@@ -22,7 +22,6 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import OpcionesModal from "../../components/modals/ModalOpciones";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function MisContactosScreen() {
   const { perfil, persona } = useSelector((state: RootState) => state.auth);
@@ -34,9 +33,52 @@ export default function MisContactosScreen() {
 
   const [idContacto, setIdContacto] = useState<any>();
   const [contactNombres, setContactNombres] = useState("");
-  const [contactCelular, setContactCelular] = useState("");
   const [contactApellidos, setContactApellidos] = useState("");
+  const [contactCelular, setContactCelular] = useState("");
   const [contactCorreo, setContactCorreo] = useState("");
+
+  const [errorNombres, setErrorNombres] = useState("");
+  const [errorApellidos, setErrorApellidos] = useState("");
+  const [errorCelular, setErrorCelular] = useState("");
+  const [errorCorreo, setErrorCorreo] = useState("");
+
+  // Función para validar el celular
+  const validarCelular = (celular: string) => {
+    if (celular.length <= 8) {
+      setErrorCelular("El número debe tener 9 dígitos.");
+    } else {
+      setErrorCelular("");
+    }
+  };
+
+  // Función para validar los nombres (mínimo 3 caracteres)
+  const validarNombres = (nombres: string) => {
+    if (nombres.length < 3) {
+      setErrorNombres("El nombre debe tener al menos 3 caracteres.");
+    } else {
+      setErrorNombres("");
+    }
+  };
+
+  // Función para validar los apellidos (mínimo 3 caracteres)
+  const validarApellidos = (apellidos: string) => {
+    if (apellidos.length < 3) {
+      setErrorApellidos("El apellido debe tener al menos 3 caracteres.");
+    } else {
+      setErrorApellidos("");
+    }
+  };
+
+  // Función para validar el correo electrónico
+  const validarCorreo = (correo: string) => {
+    // Expresión regular básica para validar correo
+    const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!regexCorreo.test(correo)) {
+      setErrorCorreo("El correo electrónico no es válido.");
+    } else {
+      setErrorCorreo("");
+    }
+  };
 
   const id_usuario = persona.id_persona;
 
@@ -268,40 +310,71 @@ export default function MisContactosScreen() {
             {/* Campo para el nombre del contacto */}
             <TextInput
               value={contactNombres}
-              onChangeText={setContactNombres}
+              onChangeText={(nombres) => {
+                validarNombres(nombres);
+                setContactNombres(nombres);
+              }}
               placeholder="Nombres del contacto"
               className="border border-gray-300 p-2 mb-4 rounded-md"
             />
+            {errorNombres && (
+              <Text className="text-red-500 mb-4 px-2">{errorNombres}</Text>
+            )}
 
             {/* Campo para el apellido del contacto */}
             <TextInput
               value={contactApellidos}
-              onChangeText={setContactApellidos}
+              onChangeText={(apellidos) => {
+                validarApellidos(apellidos);
+                setContactApellidos(apellidos);
+              }}
               placeholder="Apellidos del contacto"
               className="border border-gray-300 p-2 mb-4 rounded-md"
             />
+            {errorApellidos && (
+              <Text className="text-red-500 mb-4 px-2">{errorApellidos}</Text>
+            )}
 
             {/* Campo para el número de teléfono */}
             <TextInput
               value={contactCelular}
-              onChangeText={setContactCelular}
+              onChangeText={(celular) => {
+                setContactCelular(celular);
+                validarCelular(celular);
+              }}
               placeholder="Número de teléfono"
               keyboardType="phone-pad"
+              maxLength={9}
               className="border border-gray-300 p-2 mb-4 rounded-md"
             />
+            {errorCelular && (
+              <Text className="text-red-500 mb-4 px-2">{errorCelular}</Text>
+            )}
 
             {/* Campo para el correo del contacto */}
             <TextInput
               value={contactCorreo}
-              onChangeText={setContactCorreo}
+              onChangeText={(correo) => {
+                validarCorreo(correo);
+                setContactCorreo(correo);
+              }}
               placeholder="Correo electronico"
               className="border border-gray-300 p-2 mb-4 rounded-md"
             />
+            {errorCorreo && (
+              <Text className="text-red-500 mb-4 px-2">{errorCorreo}</Text>
+            )}
 
             {/* Botones de acción */}
             <View className="flex-row justify-between">
               <TouchableOpacity
-                onPress={() => setModalVisibleAgregar(false)}
+                onPress={() => {
+                  setErrorNombres("");
+                  setErrorApellidos("");
+                  setErrorCelular("");
+                  setErrorCorreo("");
+                  setModalVisibleAgregar(false);
+                }}
                 className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
               >
                 <Text className="text-center text-gray-700">Cancelar</Text>
@@ -331,35 +404,60 @@ export default function MisContactosScreen() {
             {/* Campo para el nombre del contacto */}
             <TextInput
               value={contactNombres}
-              onChangeText={setContactNombres}
+              onChangeText={(nombres) => {
+                validarNombres(nombres);
+                setContactNombres(nombres);
+              }}
               placeholder="Nombres del contacto"
               className="border border-gray-300 p-2 mb-4 rounded-md"
             />
+            {errorNombres && (
+              <Text className="text-red-500 mb-4 px-2">{errorNombres}</Text>
+            )}
 
             {/* Campo para el apellido del contacto */}
             <TextInput
               value={contactApellidos}
-              onChangeText={setContactApellidos}
+              onChangeText={(apellidos) => {
+                validarApellidos(apellidos);
+                setContactApellidos(apellidos);
+              }}
               placeholder="Apellidos del contacto"
               className="border border-gray-300 p-2 mb-4 rounded-md"
             />
+            {errorApellidos && (
+              <Text className="text-red-500 mb-4 px-2">{errorApellidos}</Text>
+            )}
 
             {/* Campo para el número de teléfono */}
             <TextInput
               value={contactCelular}
-              onChangeText={setContactCelular}
+              onChangeText={(celular) => {
+                validarCelular(celular);
+                setContactCelular(celular);
+              }}
               placeholder="Número de teléfono"
               keyboardType="phone-pad"
+              maxLength={9}
               className="border border-gray-300 p-2 mb-4 rounded-md"
             />
+            {errorCelular && (
+              <Text className="text-red-500 mb-4 px-2">{errorCelular}</Text>
+            )}
 
             {/* Campo para el correo del contacto */}
             <TextInput
               value={contactCorreo}
-              onChangeText={setContactCorreo}
+              onChangeText={(correo) => {
+                validarCorreo(correo);
+                setContactCorreo(correo);
+              }}
               placeholder="Correo electronico"
               className="border border-gray-300 p-2 mb-4 rounded-md"
             />
+            {errorCorreo && (
+              <Text className="text-red-500 mb-4 px-2">{errorCorreo}</Text>
+            )}
 
             {/* Botones de acción */}
             <View className="flex-row justify-between">
@@ -371,6 +469,10 @@ export default function MisContactosScreen() {
                   setContactApellidos("");
                   setContactCelular("");
                   setContactCorreo("");
+                  setErrorNombres("");
+                  setErrorApellidos("");
+                  setErrorCelular("");
+                  setErrorCorreo("");
                 }}
                 className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
               >

@@ -92,7 +92,7 @@ export default function PerfilScreen() {
         Alert.alert(
           "Datos actualizados",
           "Los datos se han actualizado correctamente.",
-          [{ text: "Aceptar", onPress: () => console.log("Alerta cerrada") }],
+          [{ text: "Aceptar", onPress: () => {} }],
           { cancelable: false }
         );
       })
@@ -151,7 +151,7 @@ export default function PerfilScreen() {
         Alert.alert(
           "Éxito",
           "Tu contraseña ha sido cambiada correctamente.",
-          [{ text: "Aceptar", onPress: () => console.log("Alerta cerrada") }],
+          [{ text: "Aceptar", onPress: () => {} }],
           { cancelable: false }
         );
       })
@@ -246,7 +246,7 @@ export default function PerfilScreen() {
               [
                 {
                   text: "Cancelar",
-                  onPress: () => console.log("Cancelado"),
+                  onPress: () => {},
                   style: "cancel",
                 },
                 {
@@ -301,7 +301,7 @@ export default function PerfilScreen() {
               [
                 {
                   text: "Cancelar",
-                  onPress: () => console.log("Cancelado"),
+                  onPress: () => {},
                   style: "cancel",
                 },
                 {

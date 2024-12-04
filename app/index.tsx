@@ -5,6 +5,7 @@ import { loginAction, setLoading } from "./redux/authSlice";
 import { useSelector } from "react-redux";
 import * as SecureStore from "expo-secure-store";
 import store from "./redux/store";
+import { StatusBar } from "expo-status-bar";
 
 export default function IndexScreen() {
   const router = useRouter();
@@ -48,6 +49,7 @@ export default function IndexScreen() {
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
+        <StatusBar style="light" backgroundColor="black" />
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
