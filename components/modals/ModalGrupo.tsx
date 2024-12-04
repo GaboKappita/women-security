@@ -281,6 +281,8 @@ const GrupoModal = ({
               onChangeText={setCelularPersona}
               placeholder="Número de celular de la persona"
               className="border border-gray-300 p-2 mb-4 rounded-md"
+              maxLength={9}
+              keyboardType="phone-pad"
             />
 
             {/* Botones de acción */}

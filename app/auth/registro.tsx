@@ -135,6 +135,23 @@ export default function RegistroScreen() {
         id_genero: datos.genero,
       };
       const response = await RegistrarUsuario(data);
+      console.log(response);
+      if (response.success == false) {
+        setIsPressed(false);
+        Alert.alert(
+          "Ocurrio un error",
+          response.data,
+          [
+            {
+              text: "Aceptar",
+              onPress: () => {},
+            },
+          ],
+          { cancelable: false }
+        );
+        return;
+      }
+
       // Muestra la alerta de registro exitoso
       Alert.alert(
         "¡Registrado con éxito!",
@@ -143,7 +160,6 @@ export default function RegistroScreen() {
           {
             text: "Aceptar",
             onPress: () => {
-              // Cuando el usuario cierra la alerta, lo rediriges a la página de iniciar sesión
               router.replace("/auth/iniciar-sesion");
             },
           },
@@ -356,7 +372,7 @@ export default function RegistroScreen() {
                             setFieldValue("fechaNacimiento", date)
                           }
                         />
-                        
+
                         <View className="mx-2" />
 
                         <GeneroDropdown

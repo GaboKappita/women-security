@@ -183,7 +183,7 @@ export default function PerfilScreen() {
       return;
     }
 
-    if (password == perfil.password) {
+    if (newPassword == perfil.password) {
       Alert.alert(
         "Error",
         "La contraseña no puede ser la misma. Por favor, inténtalo de nuevo."
