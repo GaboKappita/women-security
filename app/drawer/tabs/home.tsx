@@ -338,6 +338,26 @@ export default function HomeScreen() {
     );
   };
 
+  const obtenerMensajeTiempo = (timestamp: number): string => {
+    const ahora = Date.now();
+    const diferencia = ahora - timestamp; // Diferencia en milisegundos
+
+    if (diferencia < 60 * 1000) {
+      return "Esta es su ubicación actual"; // Menos de 1 minuto
+    } else if (diferencia < 60 * 60 * 1000) {
+      const minutos = Math.floor(diferencia / (60 * 1000));
+      return `Última ubicación: hace ${minutos} minuto${
+        minutos > 1 ? "s" : ""
+      }`;
+    } else if (diferencia < 24 * 60 * 60 * 1000) {
+      const horas = Math.floor(diferencia / (60 * 60 * 1000));
+      return `Última ubicación: hace ${horas} hora${horas > 1 ? "s" : ""}`;
+    } else {
+      const dias = Math.floor(diferencia / (24 * 60 * 60 * 1000));
+      return `Última ubicación: hace ${dias} día${dias > 1 ? "s" : ""}`;
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <StatusBar style="light" backgroundColor="black" />
@@ -352,27 +372,33 @@ export default function HomeScreen() {
             initialRegion={location}
           >
             {grupoUbicacion &&
-              Object.entries(grupoUbicacion).map(([id, usuario]) => (
-                <Marker
-                  key={id}
-                  coordinate={{
-                    latitude: usuario.latitud,
-                    longitude: usuario.longitud,
-                  }}
-                  title={`${usuario.nombre} ${usuario.apellido}`}
-                  description="Esta es su ubicación actual"
-                  anchor={{ x: 0.25, y: 0.25 }}
-                  calloutAnchor={{ x: 0.3, y: 0 }}
-                >
-                  <Image
-                    source={require("../../../assets/profile-user.png")}
-                    style={{
-                      width: 30,
-                      height: 30,
+              Object.entries(grupoUbicacion).map(([id, usuario]) => {
+                const mensajeDescripcion = obtenerMensajeTiempo(
+                  usuario.timestamp
+                );
+                return (
+                  <Marker
+                    key={id}
+                    coordinate={{
+                      latitude: usuario.latitud,
+                      longitude: usuario.longitud,
                     }}
-                  />
-                </Marker>
-              ))}
+                    title={`${usuario.nombre} ${usuario.apellido}`}
+                    description={mensajeDescripcion}
+                    // description={`${usuario.timestamp} Esta es su ubicación actual`}
+                    anchor={{ x: 0.25, y: 0.25 }}
+                    calloutAnchor={{ x: 0.3, y: 0 }}
+                  >
+                    <Image
+                      source={require("../../../assets/profile-user.png")}
+                      style={{
+                        width: 30,
+                        height: 30,
+                      }}
+                    />
+                  </Marker>
+                );
+              })}
             {alertasUbicacion &&
               Object.entries(alertasUbicacion).map(([id, alerta]) => (
                 <Marker
