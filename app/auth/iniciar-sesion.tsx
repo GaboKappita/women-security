@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   Text,
   TextInput,
@@ -35,6 +36,7 @@ export default function IniciarSesionScreen() {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state: any) => state.auth);
   const [isPressed, setIsPressed] = useState(false);
+  const [errorSesion, setErrorSesion] = useState("");
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -50,6 +52,12 @@ export default function IniciarSesionScreen() {
     };
     try {
       const response = await IniciarSesion(data);
+      if (!response.success) {
+        setIsPressed(false);
+        setErrorSesion("Contraseña o usuario incorrecto.");
+        return;
+      }
+
       await SecureStore.setItemAsync(
         "perfil",
         JSON.stringify(response.data.perfil)
@@ -69,6 +77,11 @@ export default function IniciarSesionScreen() {
     } catch (error) {
       setIsPressed(false);
       console.error("Error al iniciar sesión: ", error);
+      Alert.alert(
+        "Error al iniciar sesión", // Título de la alerta
+        "Posible error de conexión. Por favor, inténtalo de nuevo.", // Mensaje
+        [{ text: "OK", onPress: () => console.log("Alerta cerrada") }] // Botón
+      );
     }
   };
 
@@ -109,7 +122,9 @@ export default function IniciarSesionScreen() {
                     keyboardType="email-address"
                   />
                   {errors.correo && touched.correo && (
-                    <Text className="text-red-500 mb-4">{errors.correo}</Text>
+                    <Text className="text-red-500 text-base mb-4 px-2">
+                      {errors.correo}
+                    </Text>
                   )}
 
                   <TextInput
@@ -120,8 +135,13 @@ export default function IniciarSesionScreen() {
                     secureTextEntry
                   />
                   {errors.contrasena && touched.contrasena && (
-                    <Text className="text-red-500 mb-4">
+                    <Text className="text-red-500 text-base mb-4 px-2">
                       {errors.contrasena}
+                    </Text>
+                  )}
+                  {errorSesion && (
+                    <Text className="text-lg  text-center text-red-300 mb-1">
+                      {errorSesion}
                     </Text>
                   )}
 
@@ -129,6 +149,7 @@ export default function IniciarSesionScreen() {
                     activeOpacity={0.8}
                     className={`h-12 bg-[#ff80b5] rounded-md justify-center items-center my-4 `}
                     onPress={() => {
+                      setErrorSesion("");
                       handleSubmit();
                     }}
                     disabled={mutation.status === "pending" || isPressed}
