@@ -1,12 +1,10 @@
-import { router, usePathname } from "expo-router";
+import { usePathname } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { View, Text, Image } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { Ionicons } from "@expo/vector-icons";
-import { logoutAction } from "../redux/authSlice";
-import { Alert } from "react-native";
 
 export default function DrawerLayout() {
   const pathname = usePathname();
@@ -52,7 +50,6 @@ export default function DrawerLayout() {
 }
 
 function CustomDrawerContent({ navigation }: any) {
-  const dispatch = useDispatch();
   const pathname = usePathname();
   const { perfil, persona } = useSelector((state: RootState) => state.auth);
   const imagen_usuario = perfil.imagen_usuario;
@@ -267,9 +264,9 @@ function CustomDrawerContent({ navigation }: any) {
         />
       </DrawerContentScrollView>
 
-      <View className="w-10/12 h-[1px] bg-black opacity-40 m-auto"></View>
-      <View className="py-4 px-4">
-        {/* <DrawerItem
+      {/* <View className="w-10/12 h-[1px] bg-black opacity-40 m-auto"></View>
+       <View className="py-4 px-4">
+       <DrawerItem
           label={"Configuración"}
           icon={({ color, size }) => (
             <Ionicons
@@ -291,7 +288,7 @@ function CustomDrawerContent({ navigation }: any) {
             navigation.navigate("configuracion");
             // router.push("/(drawer)/(modulos)/configuracion");
           }}
-        /> */}
+        />
         <DrawerItem
           icon={({ color, size }) => (
             <Ionicons name="log-out" size={24} color={"red"} />
@@ -315,8 +312,21 @@ function CustomDrawerContent({ navigation }: any) {
                 {
                   text: "Aceptar",
                   onPress: () => {
-                    dispatch(logoutAction());
-                    router.replace("/auth/iniciar-sesion");
+                    try {
+                      dispatch(logoutAction());
+                      router.push("/auth/iniciar-sesion");
+                    } catch (error) {
+                      Alert.alert(
+                        "Error",
+                        "Hubo un problema Por favor, inténtalo nuevamente.",
+                        [
+                          {
+                            text: "Aceptar",
+                          },
+                        ],
+                        { cancelable: false }
+                      );
+                    }
                   },
                 },
               ],
@@ -324,7 +334,7 @@ function CustomDrawerContent({ navigation }: any) {
             );
           }}
         />
-      </View>
+      </View> */}
     </View>
   );
 }

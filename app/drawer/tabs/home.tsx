@@ -24,6 +24,8 @@ import {
 import { onValue, push, ref, set } from "firebase/database";
 import { database } from "../../../firebaseConfig";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
 
 interface LocationCoords {
   latitude: number;
@@ -342,6 +344,7 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar style="light" backgroundColor="black" />
       {location ? (
         <>
           <MapView

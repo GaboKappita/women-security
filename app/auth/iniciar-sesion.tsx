@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import Logo from "../../components/aplicacion/Logo";
 import BotonPrincipal from "../../components/aplicacion/BotonPrincipal";
-import BotonSecundario from "../../components/aplicacion/BotonSecundario";
 import CardBlack from "../../components/aplicacion/CardBlack";
 import ImagenBackground from "../../components/aplicacion/ImagenBackground";
 import * as Yup from "yup";
@@ -28,13 +27,17 @@ const LoginSchema = Yup.object().shape({
   contrasena: Yup.string().required("La contraseña es obligatoria"),
 });
 
+export const unstable_settings = {
+  headerShown: false,
+};
+
 export default function IniciarSesionScreen() {
   const dispatch = useDispatch();
-  const user = useSelector((state: any) => state.auth.user);
+  const { isAuthenticated } = useSelector((state: any) => state.auth);
   const [isPressed, setIsPressed] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (isAuthenticated) {
       router.push("/drawer/tabs/home");
     }
   }, []);

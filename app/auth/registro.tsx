@@ -26,9 +26,8 @@ import GeneroDropdown from "../../components/aplicacion/registro/GeneroDropdown"
 import FechaNacimientoPicker from "../../components/aplicacion/registro/FechaNacimiento";
 import ComunaDropdown from "../../components/aplicacion/registro/ComunaDropdown";
 import ErrorList from "../../components/aplicacion/registro/ListaErrores";
-import * as SecureStore from "expo-secure-store";
-import { loginAction } from "../redux/authSlice";
-import { useDispatch } from "react-redux";
+import CalendarPicker from "../../components/aplicacion/registro/FechaNacimiento";
+import CalendarPicker2 from "../../components/aplicacion/registro/FechaNacimiento2";
 
 const RegisterSchema = Yup.object().shape({
   // Validación para RUN: Obligatorio, con un patrón básico para formato correcto
@@ -92,11 +91,8 @@ const RegisterSchema = Yup.object().shape({
 });
 
 export default function RegistroScreen() {
-  const dispatch = useDispatch();
   const swiperRef = useRef<Swiper>(null);
   const router = useRouter();
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
   const [isPressed, setIsPressed] = useState(false);
 
   const {
@@ -303,16 +299,18 @@ export default function RegistroScreen() {
                         }}
                       />
 
-                      <ComunaDropdown
-                        value={values.comuna}
-                        onChange={(selectedValue: any) =>
-                          setFieldValue("comuna", selectedValue)
-                        }
-                        comunas={dataComunas}
-                        error={errors.comuna}
-                        touched={touched.comuna}
-                        isLoading={isLoadingComunas}
-                      />
+                      {isLoadingComunas && (
+                        <ComunaDropdown
+                          value={values.comuna}
+                          onChange={(selectedValue: any) =>
+                            setFieldValue("comuna", selectedValue)
+                          }
+                          comunas={dataComunas}
+                          error={errors.comuna}
+                          touched={touched.comuna}
+                          isLoading={isLoadingComunas}
+                        />
+                      )}
                       {errors.comuna && touched.comuna && (
                         <Text className="text-red-500 mb-4">
                           {errors.comuna}
@@ -352,14 +350,14 @@ export default function RegistroScreen() {
                       )}
 
                       <View className="flex flex-row items-center justify-center w-full mb-4">
-                        <FechaNacimientoPicker
-                          value={values.fechaNacimiento}
-                          onChange={(selectedDate: Date) =>
-                            setFieldValue("fechaNacimiento", selectedDate)
+                        <CalendarPicker2
+                          initialDate={values.fechaNacimiento}
+                          onDateChange={(date) =>
+                            setFieldValue("fechaNacimiento", date)
                           }
-                          error={errors.fechaNacimiento}
-                          touched={touched.fechaNacimiento}
                         />
+                        
+                        <View className="mx-2" />
 
                         <GeneroDropdown
                           value={values.genero}

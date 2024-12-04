@@ -13,17 +13,15 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useState } from "react";
-import FechaNacimientoPicker from "../../../components/aplicacion/registro/FechaNacimiento";
 import { useEditarUsuarioMutation } from "../../../services/api";
-import { updateProfileAction } from "../../redux/authSlice";
+import { logoutAction, updateProfileAction } from "../../redux/authSlice";
+import CalendarPicker from "../../../components/aplicacion/registro/FechaNacimiento";
+import { useRouter } from "expo-router";
 
 export default function PerfilScreen() {
-  const { perfil, persona } = useSelector((state: RootState) => state.auth);
-  if (!persona || !perfil) {
-    return <ActivityIndicator size="large" color="#ff80b5" />;
-  }
-
   const dispatch = useDispatch();
+  const router = useRouter();
+  const { perfil, persona } = useSelector((state: RootState) => state.auth);
   const [loading, setLoading] = useState(false);
   const [nombre, setNombre] = useState(persona.nombre || "");
   const [apellido, setApellido] = useState(persona.apellido || "");
@@ -188,8 +186,8 @@ export default function PerfilScreen() {
           </View>
         </View>
       </View>
+      <Text className="text-2xl font-bold text-center my-4">Datos usuario</Text>
       <View className="bg-white shadow shadow-black rounded p-4 mb-8">
-        <Text className="text-xl font-bold text-center">Datos usuario</Text>
         <Text className="text-sm mb-1">Nombre</Text>
         <TextInput
           value={nombre}
@@ -232,11 +230,9 @@ export default function PerfilScreen() {
 
         <Text className="mb-1">Fecha de nacimiento</Text>
         <View className="mb-4">
-          <FechaNacimientoPicker
-            value={fechaNacimiento}
-            onChange={(selectedDate: Date) => setFechaNacimiento(selectedDate)}
-            error={null}
-            touched={null}
+          <CalendarPicker
+            initialDate={fechaNacimiento}
+            onDateChange={(date) => setFechaNacimiento(date)}
           />
         </View>
 
@@ -266,6 +262,7 @@ export default function PerfilScreen() {
         </TouchableOpacity>
       </View>
 
+      <Text className="text-2xl font-bold text-center my-4">Contraseña</Text>
       <View className="bg-white shadow shadow-black rounded p-4 mb-12">
         <Text className="mb-1">Contraseña actual</Text>
         <TextInput
@@ -320,6 +317,47 @@ export default function PerfilScreen() {
         </TouchableOpacity>
       </View>
 
+      <View className="bg-white shadow shadow-black rounded p-4 mb-12">
+        <TouchableOpacity
+          activeOpacity={0.75}
+          className="bg-red-500 p-2 rounded-md justify-center items-center border border-gray-200"
+          onPress={() => {
+            Alert.alert(
+              "Cerrar sesión",
+              "¿Estás seguro de que quieres cerrar sesión?",
+              [
+                {
+                  text: "Cancelar",
+                  style: "cancel",
+                },
+                {
+                  text: "Aceptar",
+                  onPress: () => {
+                    try {
+                      dispatch(logoutAction());
+                      router.replace("/auth/iniciar-sesion");
+                    } catch (error) {
+                      Alert.alert(
+                        "Error",
+                        "Hubo un problema Por favor, inténtalo nuevamente.",
+                        [
+                          {
+                            text: "Aceptar",
+                          },
+                        ],
+                        { cancelable: false }
+                      );
+                    }
+                  },
+                },
+              ],
+              { cancelable: true }
+            );
+          }}
+        >
+          <Text className="text-white text-lg">Cerrar sesión</Text>
+        </TouchableOpacity>
+      </View>
       <Modal
         transparent={true}
         visible={loading}

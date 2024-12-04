@@ -3,12 +3,12 @@ import { Text, TouchableOpacity } from "react-native";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { obtenerFechaEntregada } from "../../../utils/dateUtils";
 
-interface CalendarPickerProps {
-  initialDate?: Date;
+interface CalendarPicker2Props {
+  initialDate?: any;
   onDateChange?: (date: Date) => void;
 }
 
-const CalendarPicker: React.FC<CalendarPickerProps> = ({
+const CalendarPicker2: React.FC<CalendarPicker2Props> = ({
   initialDate,
   onDateChange,
 }: any) => {
@@ -45,7 +45,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
   return (
     <TouchableOpacity
       activeOpacity={1}
-      className="px-4 py-2 border border-gray-300 rounded-lg"
+      className="px-4 py-2 border h-12 rounded-md flex-1 justify-center bg-white border-gray-300"
       onPress={() => showMode("date")}
     >
       <Text className="text-sm">{obtenerFechaEntregada(date)}</Text>
@@ -53,4 +53,4 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
   );
 };
 
-export default CalendarPicker;
+export default CalendarPicker2;
