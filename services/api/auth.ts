@@ -15,9 +15,6 @@ const IniciarSesion = async ({ correo, contrasena }: any) => {
     return { success: true, data: response.data };
   } catch (error: any) {
     let errorMessage = "Ocurrió un error al iniciar sesión";
-
-    console.log("este es el error", error.response.data);
-
     if (error.response) {
       errorMessage = error.response.data?.message || errorMessage;
     } else if (error.request) {

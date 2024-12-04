@@ -44,7 +44,7 @@ export default function MisContactosScreen() {
 
   // Función para validar el celular
   const validarCelular = (celular: string) => {
-    if (celular.length <= 8) {
+    if (celular.trim().length <= 8) {
       setErrorCelular("El número debe tener 9 dígitos.");
     } else {
       setErrorCelular("");
@@ -53,7 +53,7 @@ export default function MisContactosScreen() {
 
   // Función para validar los nombres (mínimo 3 caracteres)
   const validarNombres = (nombres: string) => {
-    if (nombres.length < 3) {
+    if (nombres.trim().length < 3) {
       setErrorNombres("El nombre debe tener al menos 3 caracteres.");
     } else {
       setErrorNombres("");
@@ -62,7 +62,7 @@ export default function MisContactosScreen() {
 
   // Función para validar los apellidos (mínimo 3 caracteres)
   const validarApellidos = (apellidos: string) => {
-    if (apellidos.length < 3) {
+    if (apellidos.trim().length < 3) {
       setErrorApellidos("El apellido debe tener al menos 3 caracteres.");
     } else {
       setErrorApellidos("");
@@ -82,6 +82,49 @@ export default function MisContactosScreen() {
 
   const id_usuario = persona.id_persona;
 
+  const validarCampos = () => {
+    let isValid = true;
+
+    if (!contactNombres.trim()) {
+      setErrorNombres("El nombre no puede estar vacío.");
+      isValid = false;
+    } else {
+      setErrorNombres("");
+    }
+
+    if (!contactApellidos.trim()) {
+      setErrorApellidos("El apellido no puede estar vacío.");
+      isValid = false;
+    } else {
+      setErrorApellidos("");
+    }
+
+    if (!contactCelular.trim()) {
+      setErrorCelular("El número de teléfono no puede estar vacío.");
+      isValid = false;
+    } else if (contactCelular.length !== 9) {
+      setErrorCelular("El número debe tener exactamente 9 dígitos.");
+      isValid = false;
+    } else {
+      setErrorCelular("");
+    }
+
+    if (!contactCorreo.trim()) {
+      setErrorCorreo("El correo electrónico no puede estar vacío.");
+      isValid = false;
+    } else {
+      const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!regexCorreo.test(contactCorreo)) {
+        setErrorCorreo("El correo electrónico no es válido.");
+        isValid = false;
+      } else {
+        setErrorCorreo("");
+      }
+    }
+
+    return isValid;
+  };
+
   const {
     data: dataContactos = { CONTACTO: [] },
     error: errorContactos,
@@ -95,6 +138,10 @@ export default function MisContactosScreen() {
   ] = useGuardarContactoMutation();
 
   const handleAgregarContacto = () => {
+    if (!validarCampos()) {
+      return;
+    }
+
     setModalVisibleAgregar(false);
     setRefetching(true);
     guardarContacto({
@@ -358,8 +405,9 @@ export default function MisContactosScreen() {
                 validarCorreo(correo);
                 setContactCorreo(correo);
               }}
-              placeholder="Correo electronico"
+              placeholder="Correo electrónico"
               className="border border-gray-300 p-2 mb-4 rounded-md"
+              keyboardType="email-address"
             />
             {errorCorreo && (
               <Text className="text-red-500 mb-4 px-2">{errorCorreo}</Text>

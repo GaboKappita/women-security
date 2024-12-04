@@ -9,14 +9,15 @@ import {
   Image,
   ActivityIndicator,
   Alert,
+  Switch,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useEditarUsuarioMutation } from "../../../services/api";
 import { logoutAction, updateProfileAction } from "../../redux/authSlice";
 import CalendarPicker from "../../../components/aplicacion/registro/FechaNacimiento";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 export default function PerfilScreen() {
   const dispatch = useDispatch();
@@ -39,10 +40,45 @@ export default function PerfilScreen() {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [mostrarContrasenas, setMostrarContrasenas] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setNombre(persona.nombre || "");
+      setApellido(persona.apellido || "");
+      setNumeroTelefono(persona.numero_telefono || "");
+      setDireccion(persona.direccion || "");
+      setCorreo(persona.correo || "");
+      setFechaNacimiento(persona.fecha_nacimiento || "");
+      setPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setMostrarContrasenas(false);
+    }, [persona])
+  );
 
   const imagen_usuario = perfil.imagen_usuario;
 
   const id_usuario = persona.id_persona;
+
+  // Función para validar los campos
+  const validarFormulario = () => {
+    if (!nombre.trim()) return "El nombre es obligatorio.";
+    if (nombre.trim().length < 3)
+      return "El nombre debe tener al menos 3 caracteres.";
+    if (!apellido.trim()) return "El apellido es obligatorio.";
+    if (apellido.trim().length < 3)
+      return "El apellido debe tener al menos 3 caracteres.";
+    if (!correo.trim() || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(correo))
+      return "Introduce un correo electrónico válido.";
+    if (!numeroTelefono.trim() || !/^\d{9}$/.test(numeroTelefono))
+      return "El número de teléfono debe tener 9 dígitos.";
+    if (!direccion.trim()) return "La dirección es obligatoria.";
+    if (direccion.trim().length < 3)
+      return "La dirección debe tener al menos 3 caracteres.";
+    if (!fechaNacimiento) return "Selecciona una fecha de nacimiento.";
+    return null;
+  };
 
   const [
     cambiarDatos,
@@ -54,6 +90,12 @@ export default function PerfilScreen() {
   ] = useEditarUsuarioMutation();
 
   const handleSubmit = () => {
+    const error = validarFormulario();
+    if (error) {
+      Alert.alert("Error de validación", error);
+      return;
+    }
+
     setLoading(true);
     const data = {
       uid: id_usuario,
@@ -103,10 +145,32 @@ export default function PerfilScreen() {
   };
 
   const handleCambioContrasena = () => {
-    if (password !== perfil.password) {
+    // Verificar si la contraseña actual está vacía
+    if (!password.trim()) {
+      Alert.alert("Error", "La contraseña actual no puede estar vacía.");
+      return;
+    }
+
+    // Verificar si la nueva contraseña está vacía
+    if (!newPassword.trim()) {
+      Alert.alert("Error", "La nueva contraseña no puede estar vacía.");
+      return;
+    }
+
+    // Verificar si la confirmación de la nueva contraseña está vacía
+    if (!confirmPassword.trim()) {
       Alert.alert(
         "Error",
-        "Esa no es tu contraseña actual. Por favor, inténtalo de nuevo."
+        "La confirmación de la nueva contraseña no puede estar vacía."
+      );
+      return;
+    }
+
+    // Verificar si la nueva contraseña es suficientemente larga (por ejemplo, 6 caracteres)
+    if (newPassword.length < 6) {
+      Alert.alert(
+        "Error",
+        "La nueva contraseña debe tener al menos 6 caracteres."
       );
       return;
     }
@@ -115,6 +179,22 @@ export default function PerfilScreen() {
       Alert.alert(
         "Error",
         "Las contraseñas no coinciden. Por favor, inténtalo de nuevo."
+      );
+      return;
+    }
+
+    if (password == perfil.password) {
+      Alert.alert(
+        "Error",
+        "La contraseña no puede ser la misma. Por favor, inténtalo de nuevo."
+      );
+      return;
+    }
+
+    if (password !== perfil.password) {
+      Alert.alert(
+        "Error",
+        "Esa no es tu contraseña actual. Por favor, inténtalo de nuevo."
       );
       return;
     }
@@ -210,6 +290,7 @@ export default function PerfilScreen() {
           onChangeText={setCorreo}
           placeholder="Introduce tu correo electrónico"
           className="border border-gray-300 p-2 rounded-md mb-4"
+          keyboardType="email-address"
         />
 
         <Text className="mb-1">Número de teléfono</Text>
@@ -218,6 +299,8 @@ export default function PerfilScreen() {
           onChangeText={setNumeroTelefono}
           placeholder="Introduce tu número de teléfono"
           className="border border-gray-300 p-2 rounded-md mb-4"
+          keyboardType="phone-pad"
+          maxLength={9}
         />
 
         <Text className="mb-1">Dirección</Text>
@@ -269,7 +352,7 @@ export default function PerfilScreen() {
           value={password}
           onChangeText={setPassword}
           placeholder="Introduce tu contraseña actual"
-          // secureTextEntry
+          secureTextEntry={!mostrarContrasenas}
           className="border border-gray-300 p-2 rounded-md mb-4"
         />
 
@@ -278,7 +361,7 @@ export default function PerfilScreen() {
           value={newPassword}
           onChangeText={setNewPassword}
           placeholder="Introduce tu nueva contraseña"
-          // secureTextEntry
+          secureTextEntry={!mostrarContrasenas}
           className="border border-gray-300 p-2 rounded-md mb-4"
         />
 
@@ -287,9 +370,21 @@ export default function PerfilScreen() {
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           placeholder="Confirma tu nueva contraseña"
-          // secureTextEntry
+          secureTextEntry={!mostrarContrasenas}
           className="border border-gray-300 p-2 rounded-md mb-4"
         />
+
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setMostrarContrasenas(!mostrarContrasenas)}
+          className="flex flex-row items-center mb-4"
+        >
+          <Switch
+            onValueChange={() => setMostrarContrasenas(!mostrarContrasenas)}
+            value={mostrarContrasenas} // Valor del switch
+          />
+          <Text className="text-base ml-2">Mostrar contraseñas</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           activeOpacity={0.75}

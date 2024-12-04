@@ -43,14 +43,23 @@ export default function MisClavesScreen() {
   const [errorPalabra, setErrorPalabra] = useState("");
   const [errorGravedadPalabra, setErrorGravedadPalabra] = useState("");
 
-  // Función para validar el celular
-  const validarPalabra = (celular: string) => {
-    if (celular.length < 4) {
+  // Función para validar el palabra
+  const validarPalabra = (palabra: string) => {
+    if (palabra.trim().length < 4) {
       setErrorPalabra("La palabra debe ser de al menos 4 caracteres.");
-    } else if (celular.length > 21) {
+    } else if (palabra.trim().length > 21) {
       setErrorPalabra("Trata de no excederte de los 20 caracteres.");
     } else {
       setErrorPalabra("");
+    }
+  };
+
+  // Función para validar el palabra vacia
+  const validarPalabraVacia = (palabra: string) => {
+    if (!palabra.trim()) {
+      return "No puede estar vacia la palabra";
+    } else {
+      return "";
     }
   };
 
@@ -95,6 +104,20 @@ export default function MisClavesScreen() {
   ] = useInsertarClaveMutation();
 
   const handleAgregarClave = () => {
+    const error = validarPalabraVacia(nuevaPalabraClave);
+    if (error) {
+      setErrorPalabra(error);
+      return;
+    }
+
+    const errorGravedad = validarGravedad();
+    if (errorGravedad) {
+      setErrorGravedadPalabra(errorGravedad);
+      return;
+    } else {
+      setErrorGravedadPalabra("");
+    }
+
     setModalVisibleAgregar(false);
     setRefetching(true);
     guardarClave({
@@ -130,6 +153,12 @@ export default function MisClavesScreen() {
   ] = useEditarClaveMutation();
 
   const handleEditarClave = () => {
+    const error = validarPalabraVacia(palabraClave);
+    if (error) {
+      setErrorPalabra(error);
+      return;
+    }
+
     setModalVisibleEditar(false);
     setRefetching(true);
     editarClave({
@@ -353,6 +382,7 @@ export default function MisClavesScreen() {
                 onPress={() => {
                   setModalVisibleAgregar(false);
                   setErrorPalabra("");
+                  setErrorGravedadPalabra("");
                   setSelectedGravedad({});
                 }}
                 className="bg-gray-300 p-2 rounded-md flex-1 mr-2"
@@ -360,15 +390,7 @@ export default function MisClavesScreen() {
                 <Text className="text-center text-gray-700">Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => {
-                  const error = validarGravedad();
-                  if (error) {
-                    setErrorGravedadPalabra(error);
-                  } else {
-                    setErrorGravedadPalabra("");
-                    handleAgregarClave();
-                  }
-                }}
+                onPress={handleAgregarClave}
                 className="bg-green-500 p-2 rounded-md flex-1"
               >
                 <Text className="text-center text-white">Agregar</Text>

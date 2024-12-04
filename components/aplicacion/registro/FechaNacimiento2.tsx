@@ -39,6 +39,7 @@ const CalendarPicker2: React.FC<CalendarPicker2Props> = ({
       onChange,
       mode: currentMode,
       is24Hour: true,
+      maximumDate: new Date(),
     });
   };
 
